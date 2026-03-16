@@ -2,605 +2,877 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MSC Virtuosa · Fiordos 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-/* ── RESET & VARS ─────────────────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0}
+/* ── SYSTEM FONT STACK (iOS SF Pro feel) ─────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --navy:#050e1f;--navy2:#0a1a30;--card:#0d1f35;--card2:#0f2540;
-  --teal:#00b4cc;--teal2:#00d4f0;--gold:#f0c060;--gold2:#ffd980;
-  --green:#3db87a;--muted:#4a7090;--light:#a0c8e0;--white:#eef4f8;
-  --border:rgba(0,180,204,0.15);--red:#e05050;
+  /* iOS Light palette */
+  --bg:#F2F2F7;
+  --bg2:#FFFFFF;
+  --bg3:#F2F2F7;
+  --grouped:#FFFFFF;
+  --label:#000000;
+  --label2:rgba(60,60,67,0.6);
+  --label3:rgba(60,60,67,0.3);
+  --sep:rgba(60,60,67,0.12);
+  --sep2:rgba(60,60,67,0.06);
+  --blue:#007AFF;
+  --blue2:#0A84FF;
+  --teal:#32ADE6;
+  --green:#34C759;
+  --orange:#FF9500;
+  --red:#FF3B30;
+  --purple:#AF52DE;
+  --indigo:#5856D6;
+  --fill:rgba(120,120,128,0.12);
+  --fill2:rgba(120,120,128,0.08);
+  --card-shadow:0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+  --card-shadow-lg:0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
 }
-body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;overflow-x:hidden;min-height:100vh}
+html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',sans-serif;color:var(--label);overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
-/* ── LOCK SCREEN ─────────────────────────────────────────── */
-#lock-screen{
-  position:fixed;inset:0;z-index:1000;
-  background:radial-gradient(ellipse at 50% 30%,#0a2040 0%,#050e1f 100%);
+/* ── LOCK SCREEN ──────────────────────────────────────────── */
+#lock{
+  position:fixed;inset:0;z-index:999;
+  background:linear-gradient(175deg,#1C1C2E 0%,#1a1a2e 40%,#16213e 100%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:32px 24px;text-align:center;
+  padding:40px 32px;text-align:center;
 }
-@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-#lock-screen>*{animation:fadeIn .6s ease both}
-#lock-screen>*:nth-child(2){animation-delay:.1s}
-#lock-screen>*:nth-child(3){animation-delay:.2s}
-#lock-screen>*:nth-child(4){animation-delay:.3s}
-#lock-screen>*:nth-child(5){animation-delay:.4s}
+.lock-stars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:.9}}
 
-.lock-ship{font-size:52px;margin-bottom:4px}
-@keyframes rock{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-.lock-ship{animation:rock 3s ease-in-out infinite,fadeIn .6s ease both!important}
-
-.lock-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;
-  background:linear-gradient(90deg,var(--teal),var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:4px}
-.lock-sub{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:40px}
-
-.lock-box{width:100%;max-width:320px}
-.lock-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
-  text-align:left;margin-bottom:8px;display:block}
-.lock-input-wrap{position:relative;margin-bottom:14px}
-#pwd-input{
-  width:100%;padding:14px 46px 14px 16px;
-  background:rgba(0,180,204,0.06);border:1px solid var(--border);
-  border-radius:10px;color:var(--white);font-size:16px;font-family:'DM Sans',sans-serif;
-  outline:none;transition:border-color .2s;letter-spacing:2px;
+@keyframes lockFadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.lock-ship-wrap{margin-bottom:12px;animation:lockFadeUp .7s ease both}
+.lock-ship-emoji{font-size:64px;display:block}
+@keyframes gentleRock{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(2deg) translateY(-4px)}}
+.lock-ship-emoji{animation:gentleRock 4s ease-in-out infinite}
+.lock-title{font-size:28px;font-weight:700;color:#fff;letter-spacing:-.5px;animation:lockFadeUp .7s .1s ease both;opacity:0}
+.lock-route{font-size:14px;color:rgba(255,255,255,0.5);margin-top:4px;letter-spacing:.5px;animation:lockFadeUp .7s .2s ease both;opacity:0}
+.lock-divider{width:40px;height:1px;background:rgba(255,255,255,0.15);margin:28px auto;animation:lockFadeUp .7s .3s ease both;opacity:0}
+.lock-form{width:100%;max-width:300px;animation:lockFadeUp .7s .4s ease both;opacity:0}
+.lock-field-wrap{position:relative;margin-bottom:12px}
+#pwd{
+  width:100%;height:50px;padding:0 48px 0 18px;
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:14px;
+  color:#fff;font-size:16px;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  letter-spacing:2px;outline:none;
+  transition:border-color .2s, background .2s;
+  -webkit-text-security:disc;
 }
-#pwd-input:focus{border-color:rgba(0,180,204,0.5)}
-#pwd-input.error{border-color:var(--red);animation:shake .3s ease}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.eye-btn{
-  position:absolute;right:12px;top:50%;transform:translateY(-50%);
-  background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);
-  padding:4px;transition:color .2s;
-}
-.eye-btn:hover{color:var(--light)}
+#pwd::placeholder{letter-spacing:0;color:rgba(255,255,255,0.35);font-size:15px}
+#pwd:focus{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.4)}
+#pwd.shake{animation:shake .35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}60%{transform:translateX(8px)}80%{transform:translateX(-4px)}}
+.eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:rgba(255,255,255,0.4);padding:4px}
 .lock-btn{
-  width:100%;padding:14px;border:none;border-radius:10px;cursor:pointer;
-  background:linear-gradient(135deg,var(--teal),#0080a0);
-  color:var(--white);font-size:15px;font-family:'DM Sans',sans-serif;font-weight:500;
-  letter-spacing:.5px;transition:opacity .2s,transform .1s;
+  width:100%;height:50px;border-radius:14px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#007AFF,#0A84FF);
+  color:#fff;font-size:16px;font-weight:600;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  transition:opacity .15s,transform .1s;
+  letter-spacing:-.2px;
 }
-.lock-btn:hover{opacity:.9}
-.lock-btn:active{transform:scale(.98)}
-.lock-btn:disabled{opacity:.5;cursor:not-allowed}
-.lock-error{font-size:12px;color:var(--red);margin-top:8px;min-height:18px;text-align:center;transition:opacity .3s}
-.lock-hint{font-size:11px;color:var(--muted);margin-top:20px;line-height:1.6;text-align:center}
-.lock-dots{display:flex;justify-content:center;gap:8px;margin-bottom:32px}
-.lock-dot{width:6px;height:6px;border-radius:50%;background:var(--border)}
-.lock-dot:nth-child(1){background:var(--teal)}
-.lock-dot:nth-child(2){background:rgba(0,180,204,.5)}
-.lock-dot:nth-child(3){background:rgba(0,180,204,.2)}
+.lock-btn:active{opacity:.85;transform:scale(.98)}
+.lock-err{font-size:13px;color:#FF453A;margin-top:10px;min-height:18px;text-align:center}
+.lock-hint{font-size:12px;color:rgba(255,255,255,0.25);margin-top:20px}
 
-/* ── WAVES ────────────────────────────────────────────────── */
-.waves-bg{position:fixed;bottom:0;left:0;width:100%;height:180px;pointer-events:none;z-index:0;opacity:.18}
-.waves-bg svg{width:100%;height:100%}
-@keyframes wave1{to{transform:translateX(-50%)}}
-@keyframes wave2{from{transform:translateX(-50%)}to{transform:translateX(0)}}
-@media(prefers-reduced-motion:no-preference){.w1{animation:wave1 12s linear infinite}.w2{animation:wave2 18s linear infinite}}
+/* ── APP SHELL ────────────────────────────────────────────── */
+#app{display:none;height:100dvh;display:none;flex-direction:column;background:var(--bg)}
+#app.visible{display:flex}
 
-/* ── HEADER ────────────────────────────────────────────────── */
-.header{position:relative;z-index:2;padding:24px 20px 16px;text-align:center;border-bottom:1px solid var(--border)}
-.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,180,204,.12) 0%,transparent 70%);pointer-events:none}
-@media(prefers-reduced-motion:no-preference){
-  .header h1{animation:fadeIn .6s ease both}
-  .header .subtitle{animation:fadeIn .6s .15s ease both}
-  .crew{animation:fadeIn .6s .3s ease both}
+/* ── STATUS BAR AREA ─────────────────────────────────────── */
+.ios-header{
+  background:var(--bg2);
+  padding:16px 20px 0;
+  border-bottom:0.5px solid var(--sep);
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  background:rgba(255,255,255,0.88);
 }
-.ship-anim{font-size:36px;display:block;margin-bottom:6px}
-@media(prefers-reduced-motion:no-preference){.ship-anim{animation:rock 3s ease-in-out infinite}}
-.header h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;
-  background:linear-gradient(90deg,var(--teal),var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.header .subtitle{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-top:3px}
-.crew{display:inline-flex;align-items:center;gap:8px;background:rgba(0,180,204,.08);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--light);margin-top:10px}
-.countdown-strip{display:flex;justify-content:center;gap:16px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
-.cd-unit{text-align:center}
-.cd-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold);line-height:1;display:block}
-.cd-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
-.cd-sep{font-size:24px;color:var(--border);align-self:flex-start;margin-top:4px}
+.app-title-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px}
+.app-title{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.app-sub{font-size:13px;color:var(--label2)}
+.crew-pill{display:inline-flex;align-items:center;gap:5px;background:var(--fill);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--label2)}
 
-/* ── NAV ───────────────────────────────────────────────────── */
-.nav{display:flex;background:var(--navy2);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:10}
-.nav::-webkit-scrollbar{display:none}
-.nb{flex:1;min-width:60px;padding:12px 2px;font-size:10px;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--muted);background:none;border:none;cursor:pointer;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
-.nb.active{color:var(--teal);border-bottom-color:var(--teal)}
-.nb-icon{display:block;font-size:16px;margin-bottom:2px}
+/* ── TAB BAR (iOS style) ─────────────────────────────────── */
+.tab-bar{
+  display:flex;background:rgba(249,249,249,0.94);
+  border-top:0.5px solid var(--sep);
+  padding:8px 0 max(env(safe-area-inset-bottom,0px),8px);
+  position:sticky;bottom:0;z-index:100;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;transition:opacity .15s}
+.tab:active{opacity:.6}
+.tab-icon{font-size:24px;line-height:1;transition:transform .2s}
+.tab.active .tab-icon{transform:scale(1.05)}
+.tab-label{font-size:10px;font-weight:500;color:var(--label3);letter-spacing:.2px;transition:color .2s}
+.tab.active .tab-label{color:var(--blue)}
 
-/* ── SECTIONS ──────────────────────────────────────────────── */
-.section{display:none;padding:0;position:relative;z-index:2;min-height:60vh}
+/* ── SCROLL CONTENT ──────────────────────────────────────── */
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.section{display:none;padding-bottom:20px}
 .section.active{display:block}
-.sec-pad{padding:16px}
 
-/* ── MAP ───────────────────────────────────────────────────── */
-#mapa{padding:0}
-.map-container{position:relative;width:100%;height:380px;overflow:hidden;background:linear-gradient(180deg,#051525 0%,#071e35 40%,#083050 100%)}
-.map-container svg{position:absolute;inset:0;width:100%;height:100%}
-.map-legend{padding:14px 16px;background:var(--card);border-top:1px solid var(--border)}
-.legend-title{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-.legend-items{display:flex;flex-wrap:wrap;gap:8px}
-.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--light);background:rgba(0,180,204,.08);border:1px solid var(--border);border-radius:16px;padding:4px 10px;cursor:pointer;transition:all .2s}
-.leg-item:hover{background:rgba(0,180,204,.15);border-color:var(--teal)}
-.leg-dot{width:8px;height:8px;border-radius:50%}
-.map-tooltip{position:absolute;background:var(--card2);border:1px solid var(--teal);border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;z-index:20;opacity:0;transition:opacity .2s;max-width:170px}
-.map-tooltip.show{opacity:1}
-.tt-title{font-weight:500;color:var(--teal);margin-bottom:2px}
-.tt-info{color:var(--light);font-size:11px}
+/* ── iOS GROUPED LIST STYLE ──────────────────────────────── */
+.ios-section{padding:0 16px;margin-bottom:8px}
+.ios-section-label{font-size:13px;font-weight:400;color:var(--label2);text-transform:uppercase;letter-spacing:.5px;padding:16px 4px 6px;font-size:12px}
+.ios-card{background:var(--grouped);border-radius:12px;overflow:hidden}
+.ios-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid var(--sep2);min-height:50px}
+.ios-row:last-child{border-bottom:none}
+.row-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.row-body{flex:1;min-width:0}
+.row-title{font-size:15px;letter-spacing:-.2px}
+.row-sub{font-size:13px;color:var(--label2);margin-top:1px}
+.row-right{font-size:14px;color:var(--label2);text-align:right;flex-shrink:0}
+.row-right.blue{color:var(--blue)}
+.row-right.green{color:var(--green)}
+.chevron{color:var(--label3);font-size:13px;margin-left:4px}
 
-/* ── TIMELINE ──────────────────────────────────────────────── */
-.tl-wrap{padding:20px 16px;position:relative}
-.tl-line{position:absolute;left:36px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--teal) 0%,var(--gold) 50%,var(--muted) 100%);opacity:.3}
-@keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(240,192,96,.5)}50%{box-shadow:0 0 0 8px rgba(240,192,96,0)}}
-@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-.tl-item{position:relative;padding:0 0 20px 68px;opacity:0}
-@media(prefers-reduced-motion:no-preference){.tl-item.visible{animation:slideIn .5s ease both}}
-.tl-item.visible{opacity:1}
-.tl-dot{position:absolute;left:28px;top:18px;width:18px;height:18px;border-radius:50%;border:2px solid var(--teal);background:var(--navy);z-index:1}
-.tl-dot.today{background:var(--gold);border-color:var(--gold2)}
-@media(prefers-reduced-motion:no-preference){.tl-dot.today{animation:pulseDot 2s ease infinite}}
-.tl-dot.past{border-color:var(--muted);background:var(--muted)}
-.tl-dot.future{background:var(--navy2)}
-.tl-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;transition:all .3s;cursor:pointer}
-.tl-card:hover{border-color:rgba(0,180,204,.4);transform:translateX(2px)}
-.tl-card.today{border-color:rgba(240,192,96,.4);background:rgba(240,192,96,.04)}
-.tl-card.past{opacity:.6}
-.tl-top{display:flex;justify-content:space-between;align-items:flex-start}
-.tl-date{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
-.tl-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500}
-.tl-badge.today-b{background:rgba(240,192,96,.2);color:var(--gold);border:1px solid rgba(240,192,96,.4)}
-.tl-badge.sea-b{background:rgba(0,100,140,.3);color:var(--teal);border:1px solid rgba(0,180,204,.2)}
-.tl-badge.port-b{background:rgba(61,184,122,.15);color:var(--green);border:1px solid rgba(61,184,122,.3)}
-.tl-badge.travel-b{background:rgba(200,100,50,.15);color:#f08050;border:1px solid rgba(200,100,50,.3)}
-.tl-place{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-top:6px}
-.tl-sub{font-size:12px;color:var(--light);margin-top:3px}
-.tl-pills{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.tl-pill{font-size:11px;background:rgba(0,180,204,.1);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--teal2)}
-.tl-tip{font-size:11px;color:var(--muted);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+/* ── HERO CARD ───────────────────────────────────────────── */
+.hero-card{
+  margin:16px;border-radius:20px;overflow:hidden;
+  background:linear-gradient(145deg,#1C3A5E 0%,#0F2540 50%,#0A1C30 100%);
+  box-shadow:var(--card-shadow-lg);position:relative;
+  min-height:160px;padding:20px;
+}
+.hero-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 0%,rgba(0,122,255,0.25) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 100%,rgba(50,173,230,0.15) 0%,transparent 50%);
+}
+.hero-pretitle{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:6px;position:relative}
+.hero-title{font-size:28px;font-weight:700;color:#fff;letter-spacing:-.5px;line-height:1.1;position:relative}
+.hero-sub{font-size:14px;color:rgba(255,255,255,0.65);margin-top:6px;position:relative}
+.hero-pills{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;position:relative}
+.hero-pill{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);border-radius:20px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,0.85)}
+.hero-pill.blue{background:rgba(0,122,255,0.25);border-color:rgba(0,122,255,0.4);color:#6eb9ff}
+.hero-pill.green{background:rgba(52,199,89,0.2);border-color:rgba(52,199,89,0.4);color:#4cd964}
 
-/* ── MISC ──────────────────────────────────────────────────── */
-.weather-strip{background:rgba(0,180,204,.06);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
-.weather-info{flex:1}.weather-title{font-size:12px;color:var(--light)}.weather-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.weather-temp{font-family:'Playfair Display',serif;font-size:22px;color:var(--teal)}
-.pack-section{padding:16px}.pack-cat{margin-bottom:16px}
-.pack-cat-title{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
-.pack-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all .2s}
-.pack-item.checked{opacity:.5}.pack-item.checked .pack-name{text-decoration:line-through;color:var(--muted)}
-.pack-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
-.pack-item.checked .pack-check{background:var(--teal);border-color:var(--teal)}
-.pack-name{font-size:13px;flex:1}
-.pack-progress{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
-.pack-bar-wrap{flex:1;height:6px;background:rgba(0,180,204,.1);border-radius:3px;overflow:hidden}
-.pack-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:3px;transition:width .4s ease}
-.pack-pct{font-size:13px;font-weight:500;color:var(--gold);min-width:32px}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.info-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
-.info-num{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;line-height:1}
-.info-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
-.info-card.teal .info-num{color:var(--teal)}.info-card.gold .info-num{color:var(--gold)}.info-card.white .info-num{color:var(--white)}.info-card.green .info-num{color:var(--green)}
-.today-hero{padding:16px}
-.today-card{background:linear-gradient(135deg,var(--card2) 0%,#0a2840 100%);border:1px solid rgba(0,180,204,.3);border-radius:14px;padding:20px;position:relative;overflow:hidden;margin-bottom:14px}
-.today-card::before{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,180,204,.12) 0%,transparent 70%)}
-.today-pretitle{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:6px}
-.today-main{font-family:'Playfair Display',serif;font-size:26px;font-weight:700}
-.today-sub2{font-size:13px;color:var(--light);margin-top:6px}
-.today-pills{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
-.note-box{background:rgba(240,192,96,.07);border:1px solid rgba(240,192,96,.25);border-radius:8px;padding:12px;font-size:12px;color:var(--gold2);margin-top:12px;line-height:1.6}
-.sec-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-.amenity-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.amenity{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:8px;font-size:13px}
-.transport-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
-.transport-row:last-child{border-bottom:none}
-.t-icon{width:34px;height:34px;border-radius:8px;background:rgba(0,180,204,.1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.t-route{font-size:13px;font-weight:500}.t-time{font-size:11px;color:var(--teal2);margin-top:1px}.t-detail{font-size:10px;color:var(--muted)}
+/* ── COUNTDOWN ───────────────────────────────────────────── */
+.countdown-row{display:flex;justify-content:space-around;padding:16px 20px;background:var(--grouped);border-radius:12px}
+.cd-unit{text-align:center}
+.cd-num{font-size:32px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums;display:block;letter-spacing:-1px}
+.cd-sep{font-size:28px;color:var(--label3);padding-top:2px;font-weight:300}
+.cd-label{font-size:10px;color:var(--label2);text-transform:uppercase;letter-spacing:.8px;margin-top:2px;display:block}
+
+/* ── STATS GRID ──────────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat-card{background:var(--grouped);border-radius:14px;padding:16px;box-shadow:var(--card-shadow)}
+.stat-val{font-size:28px;font-weight:700;letter-spacing:-.5px}
+.stat-label{font-size:12px;color:var(--label2);margin-top:2px;letter-spacing:-.1px}
+.stat-card.blue .stat-val{color:var(--blue)}
+.stat-card.green .stat-val{color:var(--green)}
+.stat-card.orange .stat-val{color:var(--orange)}
+.stat-card.teal .stat-val{color:var(--teal)}
+
+/* ── MAP ─────────────────────────────────────────────────── */
+.map-wrap{margin:0 16px 12px;border-radius:20px;overflow:hidden;box-shadow:var(--card-shadow-lg);position:relative;background:#C8E6F5}
+.map-svg-container{width:100%;position:relative}
+.map-legend-ios{padding:14px 16px;background:var(--grouped)}
+.map-legend-title{font-size:12px;color:var(--label2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.map-legend-items{display:flex;flex-wrap:wrap;gap:8px}
+.map-leg{display:flex;align-items:center;gap:6px;background:var(--fill2);border-radius:20px;padding:5px 12px;font-size:13px;cursor:pointer;transition:background .15s}
+.map-leg:active{background:var(--fill)}
+.map-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── TIMELINE ────────────────────────────────────────────── */
+.tl-container{padding:0 16px}
+.tl-item{display:flex;gap:0;margin-bottom:0;position:relative}
+.tl-left{width:56px;display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.tl-line-seg{width:2px;background:var(--sep);flex:1;min-height:20px}
+.tl-line-seg.colored{background:var(--blue)}
+.tl-line-seg.top{min-height:16px}
+.tl-line-seg.bottom{min-height:16px}
+.tl-dot-wrap{position:relative;z-index:1}
+.tl-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--blue);background:var(--bg2);flex-shrink:0}
+.tl-dot.today{background:var(--blue);border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,122,255,0.2)}
+@keyframes pulseBlue{0%,100%{box-shadow:0 0 0 0 rgba(0,122,255,0.4)}50%{box-shadow:0 0 0 8px rgba(0,122,255,0)}}
+.tl-dot.today{animation:pulseBlue 2s ease infinite}
+.tl-dot.past{background:var(--label3);border-color:var(--label3)}
+.tl-right{flex:1;padding:0 0 16px 12px}
+.tl-card-ios{
+  background:var(--grouped);border-radius:14px;overflow:hidden;
+  box-shadow:var(--card-shadow);
+  transition:transform .15s;
+}
+.tl-card-ios:active{transform:scale(.98)}
+.tl-card-ios.today{border:1.5px solid var(--blue)}
+.tl-card-header{padding:12px 14px 10px;border-bottom:0.5px solid var(--sep2)}
+.tl-card-meta{font-size:11px;color:var(--label2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.tl-badge-ios{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.tl-badge-ios.sea{background:rgba(50,173,230,0.12);color:var(--teal)}
+.tl-badge-ios.port{background:rgba(52,199,89,0.12);color:var(--green)}
+.tl-badge-ios.travel{background:rgba(255,149,0,0.12);color:var(--orange)}
+.tl-badge-ios.today{background:rgba(0,122,255,0.12);color:var(--blue)}
+.tl-place-name{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.tl-card-body{padding:10px 14px}
+.tl-hours{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.tl-hour-chip{background:var(--fill2);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--label2)}
+.tl-tip-ios{font-size:13px;color:var(--label2);line-height:1.5}
+
+/* ── CABIN ───────────────────────────────────────────────── */
+.cabin-hero{
+  margin:16px;border-radius:20px;overflow:hidden;
+  background:linear-gradient(145deg,#1C3A5E,#0A1C30);
+  padding:28px 24px;text-align:center;box-shadow:var(--card-shadow-lg);
+}
+.cabin-num{font-size:44px;font-weight:700;color:#fff;letter-spacing:-1px}
+.cabin-type{font-size:14px;color:rgba(255,255,255,.6);margin-top:6px;letter-spacing:.5px}
+.cabin-deck{font-size:13px;color:rgba(255,255,255,.4);margin-top:4px}
+
+/* ── PACKING ─────────────────────────────────────────────── */
+.pack-progress-ios{margin:16px;background:var(--grouped);border-radius:14px;padding:16px;box-shadow:var(--card-shadow)}
+.pack-progress-label{display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px}
+.pack-progress-label span:last-child{color:var(--blue);font-weight:600}
+.ios-progress{height:6px;background:var(--fill);border-radius:3px;overflow:hidden}
+.ios-progress-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:3px;transition:width .4s ease;width:0%}
+.pack-item-ios{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid var(--sep2);cursor:pointer;transition:background .15s}
+.pack-item-ios:last-child{border-bottom:none}
+.pack-item-ios:active{background:var(--fill2)}
+.pack-check-ios{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--sep);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:13px}
+.pack-item-ios.checked .pack-check-ios{background:var(--blue);border-color:var(--blue);color:#fff}
+.pack-item-ios.checked .pack-name-ios{text-decoration:line-through;color:var(--label3)}
+.pack-name-ios{font-size:15px;flex:1}
+
+/* ── NOTE BOX ────────────────────────────────────────────── */
+.note-ios{margin:0 16px;background:rgba(255,149,0,0.08);border:1px solid rgba(255,149,0,0.2);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--label);line-height:1.5}
+.note-ios strong{color:var(--orange)}
+
+/* ── WEATHER CARD ────────────────────────────────────────── */
+.weather-card{background:var(--grouped);border-radius:12px;overflow:hidden}
+.weather-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid var(--sep2)}
+.weather-row:last-child{border-bottom:none}
+.weather-emoji{font-size:28px;width:40px;text-align:center}
+.weather-body{flex:1}.weather-place{font-size:15px;letter-spacing:-.2px}.weather-desc{font-size:13px;color:var(--label2);margin-top:1px}
+.weather-temp{font-size:20px;font-weight:600;color:var(--teal);letter-spacing:-.5px}
+
+/* ── FADE IN ANIMATION ───────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.fadein{animation:fadeUp .4s ease both}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════════
-     LOCK SCREEN
-══════════════════════════════════════════════════════════ -->
-<div id="lock-screen">
-  <div class="lock-ship">🚢</div>
-  <div class="lock-title">MSC Virtuosa · Fiordos 2026</div>
-  <div class="lock-sub">Acceso privado</div>
-  <div class="lock-dots"><div class="lock-dot"></div><div class="lock-dot"></div><div class="lock-dot"></div></div>
-  <div class="lock-box">
-    <label class="lock-label" for="pwd-input">Contraseña</label>
-    <div class="lock-input-wrap">
-      <input id="pwd-input" type="password" placeholder="••••••••••" autocomplete="off" spellcheck="false"
-             onkeydown="if(event.key==='Enter')unlock()">
-      <button class="eye-btn" id="eye-btn" onclick="toggleEye()" title="Mostrar contraseña">👁</button>
+<!-- ═══════════════════════ LOCK ════════════════════════════ -->
+<div id="lock">
+  <div class="lock-stars" id="stars"></div>
+  <div class="lock-ship-wrap"><span class="lock-ship-emoji">🚢</span></div>
+  <div class="lock-title">MSC Virtuosa</div>
+  <div class="lock-route">Fiordos Noruegos · Mayo 2026</div>
+  <div class="lock-divider"></div>
+  <div class="lock-form">
+    <div class="lock-field-wrap">
+      <input id="pwd" type="password" placeholder="Contraseña" autocomplete="off" spellcheck="false"
+             onkeydown="if(event.key==='Enter')doUnlock()">
+      <button class="eye" onclick="toggleEye()">👁</button>
     </div>
-    <button class="lock-btn" onclick="unlock()" id="unlock-btn">Entrar</button>
-    <div class="lock-error" id="lock-error"></div>
-    <div class="lock-hint">Acceso restringido · Solo para el grupo viajero</div>
+    <button class="lock-btn" onclick="doUnlock()">Entrar</button>
+    <div class="lock-err" id="lock-err"></div>
+    <div class="lock-hint">Solo para el grupo viajero</div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════
-     APP CONTENT (hidden until unlocked)
-══════════════════════════════════════════════════════════ -->
-<div id="app" style="display:none">
+<!-- ═══════════════════════ APP ═════════════════════════════ -->
+<div id="app">
 
-<div class="waves-bg">
-  <svg viewBox="0 0 1440 180" preserveAspectRatio="none">
-    <g class="w1"><path d="M0,80 C180,40 360,120 540,80 C720,40 900,120 1080,80 C1260,40 1440,120 1620,80 C1800,40 1980,120 2160,80 C2340,40 2520,120 2700,80 L2880,80 L2880,180 L0,180 Z" fill="#00b4cc"/></g>
-    <g class="w2"><path d="M0,100 C200,60 400,140 600,100 C800,60 1000,140 1200,100 C1400,60 1600,140 1800,100 C2000,60 2200,140 2400,100 C2600,60 2800,140 2880,100 L2880,180 L0,180 Z" fill="#1a4a7a" opacity="0.6"/></g>
-  </svg>
-</div>
-
-<div class="header">
-  <span class="ship-anim">🚢</span>
-  <h1>MSC Virtuosa — Fiordos</h1>
-  <div class="subtitle">Norwegian Fjords · Mayo 2026</div>
-  <div class="crew">👨‍👩‍👧 4 adultos · 2 peques de 1,5 años</div>
-  <div class="countdown-strip" id="countdown-strip"></div>
-</div>
-
-<nav class="nav">
-  <button class="nb active" onclick="show('hoy')"><span class="nb-icon">🧭</span>Hoy</button>
-  <button class="nb" onclick="show('mapa')"><span class="nb-icon">🗺️</span>Mapa</button>
-  <button class="nb" onclick="show('ruta')"><span class="nb-icon">📍</span>Ruta</button>
-  <button class="nb" onclick="show('cabina')"><span class="nb-icon">🛏️</span>Cabina</button>
-  <button class="nb" onclick="show('pack')"><span class="nb-icon">🧳</span>Maleta</button>
-</nav>
-
-<!-- HOY -->
-<div id="hoy" class="section active">
-  <div class="today-hero">
-    <div class="today-card">
-      <div class="today-pretitle">Estado del viaje</div>
-      <div class="today-main" id="today-main">Cargando...</div>
-      <div class="today-sub2" id="today-sub2"></div>
-      <div class="today-pills" id="today-pills"></div>
-    </div>
-    <div class="info-grid">
-      <div class="info-card teal"><div class="info-num">8</div><div class="info-label">Días viaje</div></div>
-      <div class="info-card gold"><div class="info-num">4</div><div class="info-label">Puertos</div></div>
-      <div class="info-card white"><div class="info-num">8039</div><div class="info-label">Camarote</div></div>
-      <div class="info-card green"><div class="info-num">C8</div><div class="info-label">Cubierta</div></div>
-    </div>
-    <div class="sec-title">🌡️ Clima esperado en ruta</div>
-    <div class="weather-strip">
-      <div style="font-size:24px">⛅</div>
-      <div class="weather-info"><div class="weather-title">Fiordos Noruegos — Mayo</div><div class="weather-sub">Variable, algo de lluvia. Lleva capas y chubasquero.</div></div>
-      <div class="weather-temp">8–14°</div>
-    </div>
-    <div class="weather-strip">
-      <div style="font-size:24px">🏴󠁧󠁢󠁳󠁣󠁴󠁿</div>
-      <div class="weather-info"><div class="weather-title">Edimburgo / Southampton</div><div class="weather-sub">Nublado con claros, posible lluvia</div></div>
-      <div class="weather-temp">10–16°</div>
-    </div>
-    <div class="note-box">👶 <strong>Con los peques:</strong> Lleva portabebés además del carrito — los adoquines de Edimburgo y los muelles noruegos lo agradecen. En el MSC Virtuosa hay guardería a bordo, pregunta al embarcar.</div>
-  </div>
-</div>
-
-<!-- MAPA -->
-<div id="mapa" class="section">
-  <div class="map-container">
-    <div class="map-tooltip" id="map-tt"><div class="tt-title" id="tt-title"></div><div class="tt-info" id="tt-info"></div></div>
-    <svg id="map-svg" viewBox="0 0 400 380" preserveAspectRatio="xMidYMid meet">
-      <rect width="400" height="380" fill="#071e35"/>
-      <path d="M60,320 L55,290 L65,260 L58,230 L70,200 L80,180 L75,155 L85,130 L95,110 L105,95 L110,80 L120,75 L130,80 L140,90 L145,105 L138,125 L145,140 L150,160 L145,175 L155,185 L160,200 L155,215 L160,230 L165,245 L170,260 L165,280 L170,310 L160,330 L150,345 L130,355 L110,350 L90,345 L70,340 Z" fill="#1a3050" stroke="#2a4a6a" stroke-width="0.8"/>
-      <path d="M100,95 L105,70 L115,50 L130,35 L145,30 L155,45 L145,60 L140,78 L130,80 L120,75 L110,80 L105,95 Z" fill="#1e3858" stroke="#2a4a6a" stroke-width="0.8"/>
-      <path d="M240,10 L260,20 L280,35 L285,55 L275,75 L270,100 L265,125 L270,150 L265,170 L255,185 L248,200 L250,180 L245,160 L240,140 L235,120 L230,100 L225,80 L230,60 L235,35 L238,15 Z" fill="#1a3050" stroke="#2a4a6a" stroke-width="0.8"/>
-      <path d="M132,320 C145,280 160,240 185,195 C205,155 240,120 255,80 C252,65 257,52 258,40" fill="none" stroke="rgba(0,180,204,.2)" stroke-width="22" stroke-linecap="round"/>
-      <path d="M132,320 C145,280 160,240 185,195 C210,148 240,115 248,80 C252,65 257,52 258,40" fill="none" stroke="var(--teal)" stroke-width="1.5" stroke-dasharray="6 4" stroke-linecap="round" opacity="0.8"/>
-      <path d="M258,40 C248,80 240,120 220,200 C208,240 190,275 175,305 C165,325 150,335 132,320" fill="none" stroke="var(--gold)" stroke-width="1" stroke-dasharray="4 6" opacity="0.5"/>
-      <!-- Southampton -->
-      <g style="cursor:pointer" onclick="showTT(event,'Southampton 🏴󠁧󠁢󠁥󠁮󠁧󠁿','Puerto base · Embarque 16/05 · Desembarque 23/05')">
-        <circle cx="132" cy="320" r="10" fill="rgba(0,180,204,.15)" stroke="var(--teal)" stroke-width="0.5"/>
-        <circle cx="132" cy="320" r="5" fill="var(--teal)"/>
-        <circle cx="132" cy="320" r="5" fill="none" stroke="var(--teal2)" stroke-width="1" opacity="0.6"><animate attributeName="r" values="5;14;5" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite"/></circle>
-        <text x="145" y="315" font-size="9" fill="var(--teal2)" font-family="DM Sans,sans-serif" font-weight="500">Southampton</text>
-        <text x="145" y="326" font-size="8" fill="#4a7090" font-family="DM Sans,sans-serif">16 &amp; 23 Mayo</text>
-      </g>
-      <!-- South Queensferry -->
-      <g style="cursor:pointer" onclick="showTT(event,'South Queensferry 🏴󠁧󠁢󠁳󠁣󠁴󠁿','18 Mayo · 08:00–18:00 · Anclado · Puerta de Edimburgo')">
-        <circle cx="112" cy="145" r="8" fill="rgba(61,184,122,.15)" stroke="var(--green)" stroke-width="0.5"/>
-        <circle cx="112" cy="145" r="4" fill="var(--green)"/>
-        <circle cx="112" cy="145" r="4" fill="none" stroke="var(--green)" stroke-width="1" opacity="0.6"><animate attributeName="r" values="4;12;4" dur="2.5s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite" begin="0.5s"/></circle>
-        <text x="126" y="141" font-size="9" fill="#3db87a" font-family="DM Sans,sans-serif" font-weight="500">S. Queensferry</text>
-        <text x="126" y="152" font-size="8" fill="#4a7090" font-family="DM Sans,sans-serif">18 Mayo</text>
-      </g>
-      <!-- Stavanger -->
-      <g style="cursor:pointer" onclick="showTT(event,'Stavanger 🇳🇴','19 Mayo · 14:00–22:00 · Lysefijord')">
-        <circle cx="255" cy="120" r="8" fill="rgba(240,192,96,.15)" stroke="var(--gold)" stroke-width="0.5"/>
-        <circle cx="255" cy="120" r="4" fill="var(--gold)"/>
-        <circle cx="255" cy="120" r="4" fill="none" stroke="var(--gold2)" stroke-width="1" opacity="0.6"><animate attributeName="r" values="4;12;4" dur="2.5s" repeatCount="indefinite" begin="1s"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite" begin="1s"/></circle>
-        <text x="228" y="115" font-size="9" fill="var(--gold2)" font-family="DM Sans,sans-serif" font-weight="500" text-anchor="end">Stavanger</text>
-        <text x="228" y="126" font-size="8" fill="#4a7090" font-family="DM Sans,sans-serif" text-anchor="end">19 Mayo</text>
-      </g>
-      <!-- Haugesund -->
-      <g style="cursor:pointer" onclick="showTT(event,'Haugesund 🇳🇴','20 Mayo · 07:00–18:00')">
-        <circle cx="248" cy="90" r="8" fill="rgba(240,192,96,.12)" stroke="var(--gold)" stroke-width="0.5"/>
-        <circle cx="248" cy="90" r="4" fill="var(--gold)" opacity="0.7"/>
-        <circle cx="248" cy="90" r="4" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.5"><animate attributeName="r" values="4;11;4" dur="2.5s" repeatCount="indefinite" begin="1.5s"/><animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite" begin="1.5s"/></circle>
-        <text x="228" y="86" font-size="9" fill="var(--gold2)" font-family="DM Sans,sans-serif" font-weight="500" text-anchor="end">Haugesund</text>
-        <text x="228" y="97" font-size="8" fill="#4a7090" font-family="DM Sans,sans-serif" text-anchor="end">20 Mayo</text>
-      </g>
-      <!-- Kristiansand -->
-      <g style="cursor:pointer" onclick="showTT(event,'Kristiansand 🇳🇴','21 Mayo · 09:00–18:00 · Zoo Kristiansand')">
-        <circle cx="240" cy="165" r="8" fill="rgba(61,184,122,.15)" stroke="var(--green)" stroke-width="0.5"/>
-        <circle cx="240" cy="165" r="4" fill="var(--green)" opacity="0.8"/>
-        <circle cx="240" cy="165" r="4" fill="none" stroke="var(--green)" stroke-width="1" opacity="0.5"><animate attributeName="r" values="4;12;4" dur="2.5s" repeatCount="indefinite" begin="2s"/><animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite" begin="2s"/></circle>
-        <text x="228" y="161" font-size="9" fill="#3db87a" font-family="DM Sans,sans-serif" font-weight="500" text-anchor="end">Kristiansand</text>
-        <text x="228" y="172" font-size="8" fill="#4a7090" font-family="DM Sans,sans-serif" text-anchor="end">21 Mayo</text>
-      </g>
-      <!-- Compass -->
-      <g transform="translate(360,30)">
-        <circle r="18" fill="rgba(10,26,48,.8)" stroke="rgba(0,180,204,.3)" stroke-width="0.5"/>
-        <text font-size="7" fill="var(--teal2)" font-family="DM Sans,sans-serif" text-anchor="middle"><tspan x="0" y="-7">N</tspan><tspan x="0" y="11">S</tspan><tspan x="-9" y="3">O</tspan><tspan x="9" y="3">E</tspan></text>
-        <line x1="0" y1="-12" x2="0" y2="12" stroke="var(--muted)" stroke-width="0.5"/>
-        <line x1="-12" y1="0" x2="12" y2="0" stroke="var(--muted)" stroke-width="0.5"/>
-        <polygon points="0,-10 2.5,0 0,3 -2.5,0" fill="var(--teal)"/>
-      </g>
-    </svg>
-  </div>
-  <div class="map-legend">
-    <div class="legend-title">Puertos de escala — toca para info</div>
-    <div class="legend-items">
-      <div class="leg-item" onclick="showTT({clientX:200,clientY:200},'Southampton 🏴󠁧󠁢󠁥󠁮󠁧󠁿','Puerto base · 16 y 23 mayo')"><div class="leg-dot" style="background:var(--teal)"></div>Southampton</div>
-      <div class="leg-item" onclick="showTT({clientX:200,clientY:200},'South Queensferry 🏴󠁧󠁢󠁳󠁣󠁴󠁿','18 Mayo · Edimburgo')"><div class="leg-dot" style="background:var(--green)"></div>Edimburgo</div>
-      <div class="leg-item" onclick="showTT({clientX:200,clientY:200},'Stavanger 🇳🇴','19 Mayo · Lysefijord')"><div class="leg-dot" style="background:var(--gold)"></div>Stavanger</div>
-      <div class="leg-item" onclick="showTT({clientX:200,clientY:200},'Haugesund 🇳🇴','20 Mayo · 07:00–18:00')"><div class="leg-dot" style="background:var(--gold)"></div>Haugesund</div>
-      <div class="leg-item" onclick="showTT({clientX:200,clientY:200},'Kristiansand 🇳🇴','21 Mayo · Zoo Kristiansand')"><div class="leg-dot" style="background:var(--green)"></div>Kristiansand</div>
+  <div class="ios-header">
+    <div class="app-title-row">
+      <div>
+        <div class="app-title">MSC Virtuosa 🚢</div>
+        <div class="app-sub">Fiordos Noruegos · Mayo 2026</div>
+      </div>
+      <div class="crew-pill">👨‍👩‍👧 4+2</div>
     </div>
   </div>
-</div>
 
-<!-- RUTA -->
-<div id="ruta" class="section">
-  <div class="tl-wrap">
-    <div class="tl-line"></div>
-    <div id="tl-container"></div>
-  </div>
-</div>
+  <div class="content">
 
-<!-- CABINA -->
-<div id="cabina" class="section">
-  <div class="sec-pad">
-    <div style="background:linear-gradient(135deg,#0a2040,#0d3055);border:1px solid rgba(0,180,204,.3);border-radius:14px;padding:22px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden">
-      <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(0,180,204,.08) 0%,transparent 60%)"></div>
-      <div style="font-size:40px;margin-bottom:8px">🛳️</div>
-      <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--gold)">8039</div>
-      <div style="font-size:13px;color:var(--teal2);margin-top:4px;letter-spacing:1.5px;text-transform:uppercase">Balcón Deluxe</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">Cubierta 8 · 17 m²</div>
-    </div>
-    <div class="sec-title">🛠️ Equipamiento</div>
-    <div class="amenity-row">
-      <div class="amenity"><span style="font-size:16px">🌊</span>Balcón</div>
-      <div class="amenity"><span style="font-size:16px">🛋️</span>Área de estar</div>
-      <div class="amenity"><span style="font-size:16px">🚿</span>Baño completo</div>
-      <div class="amenity"><span style="font-size:16px">🔒</span>Caja fuerte</div>
-      <div class="amenity"><span style="font-size:16px">📺</span>TV interactiva</div>
-      <div class="amenity"><span style="font-size:16px">🍹</span>Minibar</div>
-      <div class="amenity"><span style="font-size:16px">❄️</span>Aire acond.</div>
-      <div class="amenity"><span style="font-size:16px">📡</span>WiFi (cargo extra)</div>
-    </div>
-    <div class="note-box">👶 Solicita cuna de viaje al embarcar. El sofá del área de estar puede reconvertirse. Barandilla del balcón alta, supervisa siempre a los peques.</div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px">
-      <div class="sec-title" style="margin-bottom:10px">✈️ Transportes</div>
-      <div class="transport-row"><div class="t-icon">✈️</div><div style="flex:1"><div class="t-route">Madrid → Londres</div><div class="t-time">07:00 · 16 mayo</div><div class="t-detail">Iberia · Nº vuelo pendiente</div></div></div>
-      <div class="transport-row"><div class="t-icon">🚌</div><div style="flex:1"><div class="t-route">Heathrow → Southampton</div><div class="t-time">11:15–12:50 · 16 mayo</div><div class="t-detail">National Express</div></div></div>
-      <div class="transport-row"><div class="t-icon" style="background:rgba(240,192,96,.15)">🚢</div><div style="flex:1"><div class="t-route">MSC Virtuosa · 16–23 mayo</div><div class="t-time">Camarote 8039 · Cubierta 8</div><div class="t-detail">4 adultos · 2 peques</div></div></div>
-      <div class="transport-row"><div class="t-icon">🚌</div><div style="flex:1"><div class="t-route">Southampton → Heathrow</div><div class="t-time">23 mayo mañana</div><div class="t-detail">National Express</div></div></div>
-      <div class="transport-row"><div class="t-icon">✈️</div><div style="flex:1"><div class="t-route">Londres → Madrid</div><div class="t-time">18:45 · 23 mayo</div><div class="t-detail">Iberia · Nº vuelo pendiente</div></div></div>
-    </div>
-  </div>
-</div>
+    <!-- ── HOY ─────────────────────────────────────────────── -->
+    <div id="sec-hoy" class="section active">
 
-<!-- MALETA -->
-<div id="pack" class="section">
-  <div class="pack-section">
-    <div class="pack-progress">
-      <div style="font-size:13px;color:var(--light)">Preparación maleta</div>
-      <div class="pack-bar-wrap"><div class="pack-bar" id="pack-bar" style="width:0%"></div></div>
-      <div class="pack-pct" id="pack-pct">0%</div>
+      <div class="hero-card fadein">
+        <div class="hero-pretitle">Estado del viaje</div>
+        <div class="hero-title" id="hero-title">Cargando...</div>
+        <div class="hero-sub" id="hero-sub"></div>
+        <div class="hero-pills" id="hero-pills"></div>
+      </div>
+
+      <div class="ios-section">
+        <div class="ios-section-label">Cuenta atrás</div>
+        <div class="countdown-row ios-card" id="countdown-row">
+          <div class="cd-unit"><span class="cd-num" id="cd-d">–</span><span class="cd-label">Días</span></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit"><span class="cd-num" id="cd-h">–</span><span class="cd-label">Horas</span></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit"><span class="cd-num" id="cd-m">–</span><span class="cd-label">Min</span></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit"><span class="cd-num" id="cd-s">–</span><span class="cd-label">Seg</span></div>
+        </div>
+      </div>
+
+      <div class="ios-section">
+        <div class="ios-section-label">Resumen</div>
+        <div class="stats-grid">
+          <div class="stat-card blue"><div class="stat-val">8</div><div class="stat-label">Días de viaje</div></div>
+          <div class="stat-card green"><div class="stat-val">4</div><div class="stat-label">Puertos escala</div></div>
+          <div class="stat-card orange"><div class="stat-val">8039</div><div class="stat-label">Camarote</div></div>
+          <div class="stat-card teal"><div class="stat-val">Cubierta 8</div><div class="stat-label">Balcón Deluxe</div></div>
+        </div>
+      </div>
+
+      <div class="ios-section">
+        <div class="ios-section-label">Clima esperado</div>
+        <div class="weather-card ios-card">
+          <div class="weather-row"><div class="weather-emoji">⛅</div><div class="weather-body"><div class="weather-place">Fiordos Noruegos</div><div class="weather-desc">Variable, algo de lluvia · lleva capas</div></div><div class="weather-temp">8–14°</div></div>
+          <div class="weather-row"><div class="weather-emoji">🌦</div><div class="weather-body"><div class="weather-place">Edimburgo · Southampton</div><div class="weather-desc">Nublado con claros</div></div><div class="weather-temp">10–16°</div></div>
+          <div class="weather-row"><div class="weather-emoji">☀️</div><div class="weather-body"><div class="weather-place">Madrid</div><div class="weather-desc">Calor antes de partir</div></div><div class="weather-temp">20–26°</div></div>
+        </div>
+      </div>
+
+      <div class="note-ios">
+        👶 <strong>Tip para los peques:</strong> Lleva portabebés además del carrito. En Edimburgo los adoquines y los muelles noruegos hacen difícil la carriola. El MSC Virtuosa tiene guardería a bordo — pregunta al embarcar.
+      </div>
+      <div style="height:20px"></div>
     </div>
-    <div id="pack-list"></div>
+
+    <!-- ── MAPA ─────────────────────────────────────────────── -->
+    <div id="sec-mapa" class="section">
+      <div class="map-wrap">
+        <div class="map-svg-container">
+          <svg id="the-map" viewBox="0 0 500 560" width="100%" style="display:block">
+            <defs>
+              <!-- Ocean gradient -->
+              <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#5BA4CF"/>
+                <stop offset="60%" stop-color="#4A90C4"/>
+                <stop offset="100%" stop-color="#3A7AB4"/>
+              </linearGradient>
+              <!-- Land gradient -->
+              <linearGradient id="land" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#A8C88A"/>
+                <stop offset="100%" stop-color="#8CB870"/>
+              </linearGradient>
+              <linearGradient id="land2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#9EBF82"/>
+                <stop offset="100%" stop-color="#84AE68"/>
+              </linearGradient>
+              <linearGradient id="norway-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#B8D4A0"/>
+                <stop offset="100%" stop-color="#98C080"/>
+              </linearGradient>
+              <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.15)"/>
+              </filter>
+              <!-- Plane path -->
+              <path id="plane-path" d="M 138 478 C 138 430 150 370 210 300 C 260 240 310 190 340 140" fill="none"/>
+              <!-- Bus path (short, from airport to port) -->
+              <path id="bus-path" d="M 148 475 C 148 470 142 466 138 462" fill="none"/>
+              <!-- Ship route -->
+              <path id="ship-route" d="M 138 460 C 148 420 162 370 168 310 C 172 270 200 240 240 210 C 268 188 310 175 330 155 C 340 148 348 142 340 140" fill="none"/>
+              <!-- Return route -->
+              <path id="return-route" d="M 340 140 C 348 155 350 170 344 190 C 336 215 314 230 286 248 C 260 265 238 290 218 320 C 200 346 180 390 162 430 C 152 452 144 460 138 460" fill="none"/>
+            </defs>
+
+            <!-- OCEAN -->
+            <rect width="500" height="560" fill="url(#ocean)"/>
+
+            <!-- Ocean texture dots -->
+            <g opacity="0.08">
+              <circle cx="80" cy="350" r="60" fill="#fff"/>
+              <circle cx="400" cy="200" r="80" fill="#fff"/>
+              <circle cx="200" cy="500" r="50" fill="#fff"/>
+            </g>
+
+            <!-- ── SPAIN ──────────────────────────────────────────── -->
+            <g filter="url(#shadow)">
+              <path d="M 40 530 L 45 510 L 50 495 L 58 485 L 70 480 L 82 482 L 90 490 L 100 492 L 112 488 L 120 480 L 128 475 L 136 475 L 144 478 L 150 484 L 158 488 L 168 490 L 175 485 L 180 478 L 188 475 L 196 478 L 200 485 L 198 495 L 190 505 L 184 515 L 188 525 L 192 535 L 185 545 L 170 550 L 150 555 L 128 558 L 105 556 L 85 548 L 65 540 L 50 535 Z" fill="url(#land)" stroke="#7aaa5a" stroke-width="0.5"/>
+              <!-- Pyrenees hint -->
+              <path d="M 136 475 L 144 470 L 152 468 L 160 470 L 168 474 L 175 478 L 180 478" fill="none" stroke="#6a9a4a" stroke-width="1.5" opacity="0.6"/>
+              <!-- Spain label -->
+              <text x="118" y="520" font-size="11" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="middle" opacity="0.9">ESPAÑA</text>
+              <!-- Madrid dot -->
+              <circle cx="118" cy="492" r="3" fill="#e74c3c" opacity="0.8"/>
+              <text x="126" y="496" font-size="8" fill="#555" font-family="-apple-system,sans-serif">Madrid</text>
+            </g>
+
+            <!-- ── FRANCE ──────────────────────────────────────────── -->
+            <g filter="url(#shadow)">
+              <path d="M 168 474 L 175 465 L 185 458 L 196 455 L 206 458 L 215 465 L 218 475 L 214 485 L 205 490 L 196 490 L 186 487 L 178 482 Z" fill="url(#land2)" stroke="#7aaa5a" stroke-width="0.5"/>
+              <text x="195" y="475" font-size="8" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="middle" opacity="0.8">FR</text>
+            </g>
+
+            <!-- ── UK + IRELAND ───────────────────────────────────── -->
+            <g filter="url(#shadow)">
+              <!-- England / Wales / Scotland -->
+              <path d="M 88 462 L 90 448 L 96 435 L 100 420 L 96 405 L 100 390 L 108 378 L 115 368 L 118 355 L 122 342 L 128 332 L 136 325 L 144 322 L 150 328 L 154 340 L 152 355 L 156 368 L 162 378 L 165 392 L 162 408 L 158 420 L 160 432 L 162 444 L 158 455 L 150 462 L 140 466 L 128 467 L 115 465 L 100 464 Z" fill="url(#land2)" stroke="#7aaa5a" stroke-width="0.5"/>
+              <!-- Scotland highlands -->
+              <path d="M 128 332 L 132 320 L 136 308 L 140 298 L 136 288 L 130 282 L 122 284 L 116 292 L 114 304 L 116 316 L 122 324 L 128 330 Z" fill="#a8c88a" stroke="#7aaa5a" stroke-width="0.5"/>
+              <!-- Ireland -->
+              <path d="M 72 415 L 76 404 L 84 396 L 92 394 L 96 402 L 94 414 L 88 422 L 78 424 L 72 418 Z" fill="url(#land2)" stroke="#7aaa5a" stroke-width="0.5"/>
+              <text x="128" y="420" font-size="9" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="middle" opacity="0.9">UK</text>
+              <text x="116" y="302" font-size="8" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="middle" opacity="0.8">SCO</text>
+            </g>
+
+            <!-- ── DENMARK ─────────────────────────────────────────── -->
+            <g>
+              <path d="M 252 310 L 256 300 L 260 292 L 264 300 L 264 310 L 260 315 L 254 314 Z" fill="url(#land2)" stroke="#7aaa5a" stroke-width="0.5"/>
+            </g>
+
+            <!-- ── NORWAY ──────────────────────────────────────────── -->
+            <g filter="url(#shadow)">
+              <path d="M 290 140 L 296 128 L 304 118 L 314 108 L 324 102 L 332 98 L 340 100 L 346 108 L 344 120 L 338 130 L 332 140 L 328 152 L 324 164 L 320 178 L 315 192 L 308 205 L 300 218 L 290 228 L 280 235 L 270 240 L 260 244 L 252 248 L 248 254 L 250 262 L 256 268 L 260 278 L 258 288 L 252 296 L 244 300 L 238 296 L 236 286 L 240 276 L 244 266 L 244 256 L 240 248 L 234 242 L 230 234 L 232 224 L 238 216 L 246 208 L 254 200 L 262 192 L 268 182 L 272 170 L 276 158 L 282 148 Z" fill="url(#norway-grad)" stroke="#7aaa5a" stroke-width="0.5"/>
+              <!-- Fjord indentations -->
+              <path d="M 252 248 C 248 252 244 258 240 262 C 238 268 240 274 244 278" fill="none" stroke="#5BA4CF" stroke-width="2" opacity="0.6"/>
+              <path d="M 270 240 C 265 246 260 252 258 260" fill="none" stroke="#5BA4CF" stroke-width="1.5" opacity="0.5"/>
+              <path d="M 290 228 C 284 236 278 244 276 252" fill="none" stroke="#5BA4CF" stroke-width="1.5" opacity="0.5"/>
+              <text x="305" y="175" font-size="10" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="middle" opacity="0.9">NORUEGA</text>
+            </g>
+
+            <!-- ── SWEDEN hint ─────────────────────────────────────── -->
+            <g>
+              <path d="M 340 100 L 350 110 L 360 125 L 366 145 L 365 165 L 360 185 L 354 205 L 348 220 L 342 235 L 338 250 L 338 264 L 340 278 L 344 290 L 342 302 L 336 310 L 328 314 L 320 312 L 314 306 L 308 298 L 304 288 L 302 276 L 302 264 L 300 252 L 296 240 L 294 228 L 296 218 L 302 208 L 308 198 L 314 188 L 318 176 L 322 162 L 326 148 L 330 136 L 334 124 L 338 112 L 340 102Z" fill="#c8ddb0" stroke="#8ab870" stroke-width="0.5" opacity="0.7"/>
+              <text x="330" y="220" font-size="8" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="500" opacity="0.7" text-anchor="middle">SWE</text>
+            </g>
+
+            <!-- ── ROUTE PATHS ─────────────────────────────────────── -->
+            <!-- Plane route (dashed, Madrid to Southampton) -->
+            <path d="M 118 492 C 120 460 130 445 138 462" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6"/>
+            <!-- Ship route outbound -->
+            <path d="M 138 460 C 140 440 148 415 152 390 C 156 365 158 345 152 330 C 148 320 140 314 136 308" fill="none" stroke="#007AFF" stroke-width="2" stroke-dasharray="6,3" opacity="0.7"/>
+            <!-- UK to Norway segment -->
+            <path d="M 136 308 C 150 290 172 270 200 250 C 222 234 248 218 270 198 C 295 176 316 158 330 142" fill="none" stroke="#007AFF" stroke-width="2" stroke-dasharray="6,3" opacity="0.7"/>
+            <!-- Return route (gold) -->
+            <path d="M 330 142 C 318 160 300 178 280 200 C 258 224 240 248 222 274 C 206 296 190 330 168 370 C 156 398 146 432 138 460" fill="none" stroke="#FF9500" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+
+            <!-- ── PORT MARKERS ────────────────────────────────────── -->
+            <!-- Southampton -->
+            <g id="pm-soton" style="cursor:pointer" onclick="mapTip('Southampton 🏴󠁧󠁢󠁥󠁮󠁧󠁿','Puerto base · Embarque 16/05 · Desembarque 23/05',138,460)">
+              <circle cx="138" cy="460" r="12" fill="rgba(0,122,255,0.15)" stroke="#007AFF" stroke-width="0.5"/>
+              <circle cx="138" cy="460" r="6" fill="#007AFF"/>
+              <circle cx="138" cy="460" r="6" fill="none" stroke="#007AFF" stroke-width="1.5" opacity="0.5">
+                <animate attributeName="r" values="6;16;6" dur="2.5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite"/>
+              </circle>
+              <text x="152" y="455" font-size="9" fill="#007AFF" font-family="-apple-system,sans-serif" font-weight="600">Southampton</text>
+              <text x="152" y="466" font-size="8" fill="rgba(0,0,0,0.45)" font-family="-apple-system,sans-serif">16 &amp; 23 Mayo</text>
+            </g>
+
+            <!-- S. Queensferry -->
+            <g id="pm-sq" style="cursor:pointer" onclick="mapTip('South Queensferry 🏴󠁧󠁢󠁳󠁣󠁴󠁿','18 Mayo · 08:00–18:00 · Anclado · Puerta de Edimburgo',136,308)">
+              <circle cx="136" cy="308" r="10" fill="rgba(52,199,89,0.15)" stroke="#34C759" stroke-width="0.5"/>
+              <circle cx="136" cy="308" r="5" fill="#34C759"/>
+              <circle cx="136" cy="308" r="5" fill="none" stroke="#34C759" stroke-width="1.5" opacity="0.5">
+                <animate attributeName="r" values="5;14;5" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
+                <animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
+              </circle>
+              <text x="150" y="304" font-size="9" fill="#34C759" font-family="-apple-system,sans-serif" font-weight="600">S. Queensferry</text>
+              <text x="150" y="315" font-size="8" fill="rgba(0,0,0,0.45)" font-family="-apple-system,sans-serif">18 Mayo</text>
+            </g>
+
+            <!-- Stavanger -->
+            <g id="pm-stav" style="cursor:pointer" onclick="mapTip('Stavanger 🇳🇴','19 Mayo · 14:00–22:00 · Lysefijord',244,228)">
+              <circle cx="244" cy="228" r="10" fill="rgba(255,149,0,0.15)" stroke="#FF9500" stroke-width="0.5"/>
+              <circle cx="244" cy="228" r="5" fill="#FF9500"/>
+              <circle cx="244" cy="228" r="5" fill="none" stroke="#FF9500" stroke-width="1.5" opacity="0.5">
+                <animate attributeName="r" values="5;14;5" dur="2.5s" repeatCount="indefinite" begin="1s"/>
+                <animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite" begin="1s"/>
+              </circle>
+              <text x="228" y="224" font-size="9" fill="#FF9500" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="end">Stavanger</text>
+              <text x="228" y="235" font-size="8" fill="rgba(0,0,0,0.45)" font-family="-apple-system,sans-serif" text-anchor="end">19 Mayo</text>
+            </g>
+
+            <!-- Haugesund -->
+            <g id="pm-hau" style="cursor:pointer" onclick="mapTip('Haugesund 🇳🇴','20 Mayo · 07:00–18:00',262,192)">
+              <circle cx="262" cy="192" r="10" fill="rgba(255,149,0,0.15)" stroke="#FF9500" stroke-width="0.5"/>
+              <circle cx="262" cy="192" r="5" fill="#FF9500" opacity="0.8"/>
+              <circle cx="262" cy="192" r="5" fill="none" stroke="#FF9500" stroke-width="1.5" opacity="0.4">
+                <animate attributeName="r" values="5;13;5" dur="2.5s" repeatCount="indefinite" begin="1.5s"/>
+                <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite" begin="1.5s"/>
+              </circle>
+              <text x="246" y="188" font-size="9" fill="#FF9500" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="end">Haugesund</text>
+              <text x="246" y="199" font-size="8" fill="rgba(0,0,0,0.45)" font-family="-apple-system,sans-serif" text-anchor="end">20 Mayo</text>
+            </g>
+
+            <!-- Kristiansand -->
+            <g id="pm-krs" style="cursor:pointer" onclick="mapTip('Kristiansand 🇳🇴','21 Mayo · 09:00–18:00 · 🦁 Zoo Kristiansand',286,248)">
+              <circle cx="286" cy="248" r="10" fill="rgba(52,199,89,0.15)" stroke="#34C759" stroke-width="0.5"/>
+              <circle cx="286" cy="248" r="5" fill="#34C759" opacity="0.9"/>
+              <circle cx="286" cy="248" r="5" fill="none" stroke="#34C759" stroke-width="1.5" opacity="0.4">
+                <animate attributeName="r" values="5;14;5" dur="2.5s" repeatCount="indefinite" begin="2s"/>
+                <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite" begin="2s"/>
+              </circle>
+              <text x="300" y="244" font-size="9" fill="#34C759" font-family="-apple-system,sans-serif" font-weight="600">Kristiansand</text>
+              <text x="300" y="255" font-size="8" fill="rgba(0,0,0,0.45)" font-family="-apple-system,sans-serif">21 Mayo</text>
+            </g>
+
+            <!-- Madrid dot (already drawn above) -->
+
+            <!-- ── ANIMATED VEHICLES ───────────────────────────────── -->
+            <!-- PLANE (Madrid → Southampton) -->
+            <g id="anim-plane">
+              <text id="plane-emoji" font-size="18" text-anchor="middle" dominant-baseline="middle">✈️</text>
+              <animateMotion dur="8s" repeatCount="indefinite" begin="0s">
+                <mpath href="#plane-path"/>
+              </animateMotion>
+            </g>
+
+            <!-- BUS (Heathrow area → Southampton port) -->
+            <g id="anim-bus">
+              <text id="bus-emoji" font-size="14" text-anchor="middle" dominant-baseline="middle">🚌</text>
+              <animateMotion dur="4s" repeatCount="indefinite" begin="2s" rotate="auto">
+                <mpath href="#bus-path"/>
+              </animateMotion>
+            </g>
+
+            <!-- SHIP (Southampton → Norway ports → back) -->
+            <g id="anim-ship">
+              <text id="ship-emoji-map" font-size="18" text-anchor="middle" dominant-baseline="middle">🚢</text>
+              <animateMotion dur="20s" repeatCount="indefinite" begin="1s">
+                <mpath href="#ship-route"/>
+              </animateMotion>
+            </g>
+
+            <!-- COMPASS -->
+            <g transform="translate(462,30)">
+              <circle r="22" fill="rgba(255,255,255,0.85)" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <text font-size="8" fill="#333" font-family="-apple-system,sans-serif" text-anchor="middle" font-weight="600">
+                <tspan x="0" y="-10">N</tspan><tspan x="0" y="14">S</tspan>
+                <tspan x="-12" y="3">W</tspan><tspan x="12" y="3">E</tspan>
+              </text>
+              <line x1="0" y1="-16" x2="0" y2="16" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/>
+              <line x1="-16" y1="0" x2="16" y2="0" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/>
+              <polygon points="0,-13 2.5,0 0,4 -2.5,0" fill="#007AFF"/>
+              <polygon points="0,13 2.5,0 0,-4 -2.5,0" fill="rgba(0,0,0,0.2)"/>
+            </g>
+
+            <!-- MAP TOOLTIP -->
+            <g id="map-tip-g" opacity="0" style="pointer-events:none">
+              <rect id="tip-bg" x="0" y="0" width="160" height="44" rx="8" fill="rgba(30,30,30,0.88)"/>
+              <text id="tip-t1" x="10" y="17" font-size="11" fill="#fff" font-family="-apple-system,sans-serif" font-weight="600"/>
+              <text id="tip-t2" x="10" y="33" font-size="10" fill="rgba(255,255,255,0.7)" font-family="-apple-system,sans-serif"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="ios-section" style="padding-top:0">
+        <div class="map-legend-ios ios-card" style="border-radius:12px">
+          <div class="map-legend-title">Escalas · toca para info</div>
+          <div class="map-legend-items">
+            <div class="map-leg" onclick="mapTip('Southampton','Puerto base · 16 y 23 mayo',138,460)"><div class="map-leg-dot" style="background:#007AFF"></div>Southampton</div>
+            <div class="map-leg" onclick="mapTip('S. Queensferry','18 Mayo · Edimburgo',136,308)"><div class="map-leg-dot" style="background:#34C759"></div>Edimburgo</div>
+            <div class="map-leg" onclick="mapTip('Stavanger','19 Mayo · Lysefijord',244,228)"><div class="map-leg-dot" style="background:#FF9500"></div>Stavanger</div>
+            <div class="map-leg" onclick="mapTip('Haugesund','20 Mayo · 07:00–18:00',262,192)"><div class="map-leg-dot" style="background:#FF9500"></div>Haugesund</div>
+            <div class="map-leg" onclick="mapTip('Kristiansand','21 Mayo · Zoo',286,248)"><div class="map-leg-dot" style="background:#34C759"></div>Kristiansand</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RUTA ─────────────────────────────────────────────── -->
+    <div id="sec-ruta" class="section">
+      <div style="height:16px"></div>
+      <div class="tl-container" id="tl-root"></div>
+    </div>
+
+    <!-- ── CABINA ───────────────────────────────────────────── -->
+    <div id="sec-cabina" class="section">
+      <div class="cabin-hero">
+        <div style="font-size:48px;margin-bottom:12px">🛳️</div>
+        <div class="cabin-num">8039</div>
+        <div class="cabin-type">Camarote con Balcón Deluxe</div>
+        <div class="cabin-deck">Cubierta 8 · 17 m²</div>
+      </div>
+
+      <div class="ios-section">
+        <div class="ios-section-label">Equipamiento</div>
+        <div class="ios-card">
+          <div class="ios-row"><div class="row-icon" style="background:rgba(0,122,255,0.12)">🌊</div><div class="row-body"><div class="row-title">Balcón privado</div></div><span class="chevron">›</span></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(52,199,89,0.12)">🛋️</div><div class="row-body"><div class="row-title">Área de estar con sofá</div></div><span class="chevron">›</span></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(90,200,250,0.15)">🚿</div><div class="row-body"><div class="row-title">Baño completo</div><div class="row-sub">Ducha · Secador · Tocador</div></div><span class="chevron">›</span></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(255,149,0,0.12)">🔒</div><div class="row-body"><div class="row-title">Caja fuerte</div></div><span class="chevron">›</span></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(88,86,214,0.12)">📺</div><div class="row-body"><div class="row-title">TV interactiva</div></div><span class="chevron">›</span></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(255,59,48,0.12)">🍹</div><div class="row-body"><div class="row-title">Minibar</div></div><span class="chevron">›</span></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(50,173,230,0.12)">❄️</div><div class="row-body"><div class="row-title">Aire acondicionado</div></div><span class="chevron">›</span></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(120,120,128,0.12)">📡</div><div class="row-body"><div class="row-title">WiFi</div><div class="row-sub">Cargo adicional a bordo</div></div><span class="chevron">›</span></div>
+        </div>
+      </div>
+
+      <div class="ios-section">
+        <div class="ios-section-label">Transportes</div>
+        <div class="ios-card">
+          <div class="ios-row"><div class="row-icon" style="background:rgba(0,122,255,0.12)">✈️</div><div class="row-body"><div class="row-title">Madrid → Londres</div><div class="row-sub">07:00 · 16 mayo · Iberia</div></div><div class="row-right">Nº pendiente</div></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(255,149,0,0.12)">🚌</div><div class="row-body"><div class="row-title">Heathrow → Southampton</div><div class="row-sub">11:15–12:50 · National Express</div></div></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(52,199,89,0.12)">🚢</div><div class="row-body"><div class="row-title">MSC Virtuosa · 16–23 mayo</div><div class="row-sub">4 adultos · 2 peques · Cab. 8039</div></div></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(255,149,0,0.12)">🚌</div><div class="row-body"><div class="row-title">Southampton → Heathrow</div><div class="row-sub">23 mayo · National Express</div></div></div>
+          <div class="ios-row"><div class="row-icon" style="background:rgba(0,122,255,0.12)">✈️</div><div class="row-body"><div class="row-title">Londres → Madrid</div><div class="row-sub">18:45 · 23 mayo · Iberia</div></div><div class="row-right">Nº pendiente</div></div>
+        </div>
+      </div>
+
+      <div class="note-ios">👶 <strong>Bebés:</strong> Solicita cuna de viaje al embarcar. El sofá puede convertirse en cama adicional. Supervisa siempre en el balcón.</div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- ── MALETA ─────────────────────────────────────────────── -->
+    <div id="sec-pack" class="section">
+      <div class="pack-progress-ios">
+        <div class="pack-progress-label"><span>Preparación maleta</span><span id="pack-pct">0%</span></div>
+        <div class="ios-progress"><div class="ios-progress-bar" id="pack-bar"></div></div>
+      </div>
+      <div id="pack-root"></div>
+      <div style="height:20px"></div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- ── TAB BAR ──────────────────────────────────────────── -->
+  <div class="tab-bar">
+    <div class="tab active" id="tab-hoy" onclick="goTab('hoy')"><div class="tab-icon">🧭</div><div class="tab-label">Hoy</div></div>
+    <div class="tab" id="tab-mapa" onclick="goTab('mapa')"><div class="tab-icon">🗺️</div><div class="tab-label">Mapa</div></div>
+    <div class="tab" id="tab-ruta" onclick="goTab('ruta')"><div class="tab-icon">📍</div><div class="tab-label">Ruta</div></div>
+    <div class="tab" id="tab-cabina" onclick="goTab('cabina')"><div class="tab-icon">🛏️</div><div class="tab-label">Cabina</div></div>
+    <div class="tab" id="tab-pack" onclick="goTab('pack')"><div class="tab-icon">🧳</div><div class="tab-label">Maleta</div></div>
   </div>
-</div>
 
 </div><!-- /app -->
 
-<!-- ══════════════════════════════════════════════════════════
-     SCRIPTS
-══════════════════════════════════════════════════════════ -->
 <script>
-/* ── PASSWORD HASH (SHA-256 of "fiordos2026")
-   To change: run  echo -n "tupassword" | sha256sum
-   and replace the string below                          */
-const PWD_HASH = '22516ddccbf1af1d4ad8d9bd659b9d1f979b6b9a9ad2c37035ca024c6f9e5735';
-const SESSION_KEY = 'msc_virtuosa_auth';
+/* ════════════════════ LOCK ════════════════════════════════ */
+const HASH='22516ddccbf1af1d4ad8d9bd659b9d1f979b6b9a9ad2c37035ca024c6f9e5735';
+const SK='msc_auth_26';
 
-/* ── UNLOCK ─────────────────────────────────────────────── */
-async function sha256(msg){
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+// Stars
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation:twinkle ${2+Math.random()*3}s ${Math.random()*3}s ease-in-out infinite`;
+    c.appendChild(s);
+  }
+})();
+
+async function sha256(s){
+  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
-async function unlock(){
-  const input = document.getElementById('pwd-input');
-  const btn   = document.getElementById('unlock-btn');
-  const err   = document.getElementById('lock-error');
-  const val   = input.value.trim();
-  if(!val) return;
-  btn.disabled = true;
-  btn.textContent = '···';
-  const hash = await sha256(val);
-  if(hash === PWD_HASH){
-    sessionStorage.setItem(SESSION_KEY,'1');
-    showApp();
+async function doUnlock(){
+  const i=document.getElementById('pwd');
+  const err=document.getElementById('lock-err');
+  const v=i.value.trim();if(!v)return;
+  const h=await sha256(v);
+  if(h===HASH){
+    sessionStorage.setItem(SK,'1');
+    const l=document.getElementById('lock');
+    l.style.transition='opacity .5s';l.style.opacity='0';
+    setTimeout(()=>{l.style.display='none';launchApp();},500);
   } else {
-    input.classList.add('error');
-    err.textContent = 'Contraseña incorrecta. Inténtalo de nuevo.';
-    setTimeout(()=>{ input.classList.remove('error'); input.value=''; input.focus(); },600);
-    btn.disabled = false;
-    btn.textContent = 'Entrar';
+    i.classList.remove('shake');
+    void i.offsetWidth;
+    i.classList.add('shake');
+    err.textContent='Contraseña incorrecta';
+    i.value='';
+    setTimeout(()=>err.textContent='',2500);
   }
 }
 
-function showApp(){
-  const ls = document.getElementById('lock-screen');
-  ls.style.transition='opacity .5s ease';
-  ls.style.opacity='0';
-  setTimeout(()=>{ ls.style.display='none'; document.getElementById('app').style.display='block'; init(); },500);
-}
-
 function toggleEye(){
-  const i=document.getElementById('pwd-input');
-  i.type = i.type==='password'?'text':'password';
+  const i=document.getElementById('pwd');
+  i.type=i.type==='password'?'text':'password';
 }
 
-/* ── CHECK SESSION ──────────────────────────────────────── */
-if(sessionStorage.getItem(SESSION_KEY)==='1'){
-  document.getElementById('lock-screen').style.display='none';
-  document.getElementById('app').style.display='block';
+// Auto-unlock if session exists
+if(sessionStorage.getItem(SK)==='1'){
+  document.getElementById('lock').style.display='none';
+  document.getElementById('app').className='visible';
+  setTimeout(initApp,0);
 }
 
-/* ── APP DATA ───────────────────────────────────────────── */
-const ITINERARY=[
-  {date:'2026-05-16',label:'Embarque',place:'Southampton',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',country:'Reino Unido',type:'travel',hours:['Vuelo 07:00 MAD→LHR','Bus 11:15 LHR→Southampton','Embarque hasta 19:00'],tip:'Llega con tiempo al aeropuerto — con cuatro adultos y dos bebés conviene ir holgados. Lleva el portabebés en el avión.'},
-  {date:'2026-05-17',label:'Día 1',place:'En Alta Mar',flag:'🌊',country:'Mar del Norte',type:'sea',hours:['Todo el día navegando'],tip:'Día perfecto para explorar el barco. Localiza guardería, piscina cubierta y puntos de interés con los peques.'},
-  {date:'2026-05-18',label:'Día 2',place:'South Queensferry',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',country:'Escocia · Anclado',type:'port',hours:['08:00 llegada','18:00 salida'],tip:'Bus lanzadera ~20 min a Edimburgo. El castillo y el Royal Mile son impresionantes. Dividíos en parejas para más agilidad con los carritos.'},
-  {date:'2026-05-19',label:'Día 3',place:'Stavanger',flag:'🇳🇴',country:'Noruega · Lysefijord',type:'port',hours:['14:00 llegada','22:00 salida'],tip:'Gamle Stavanger (casco antiguo de madera) es ideal con peques. Si alguien quiere el Preikestolen, puede ir por parejas turnándose.'},
-  {date:'2026-05-20',label:'Día 4',place:'Haugesund',flag:'🇳🇴',country:'Noruega',type:'port',hours:['07:00 llegada','18:00 salida'],tip:'Ciudad peatonal y tranquila, perfecta con carriola. Paseo por el fiordo y mercado local.'},
-  {date:'2026-05-21',label:'Día 5',place:'Kristiansand',flag:'🇳🇴',country:'Noruega',type:'port',hours:['09:00 llegada','18:00 salida'],tip:'¡El Zoo de Kristiansand es uno de los mejores de Escandinavia! Los peques lo van a flipar. Reserva online con antelación.'},
-  {date:'2026-05-22',label:'Día 6',place:'En Alta Mar',flag:'🌊',country:'Regreso · Mar del Norte',type:'sea',hours:['Todo el día navegando'],tip:'Último día a bordo. Aprovecha restaurantes y shows nocturnos. Prepara el equipaje por la noche.'},
-  {date:'2026-05-23',label:'Desembarque',place:'Southampton',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',country:'Reino Unido',type:'travel',hours:['07:00 desembarque','Bus → Heathrow','18:45 vuelo LHR→MAD'],tip:'Desembarque temprano. Hay tiempo holgado hasta el vuelo de tarde. Guarda libras para el bus de vuelta.'},
+function launchApp(){
+  document.getElementById('app').className='visible';
+  initApp();
+}
+
+/* ════════════════════ DATA ════════════════════════════════ */
+const DAYS=[
+  {date:'2026-05-16',label:'Embarque',place:'Southampton',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',country:'Reino Unido',type:'travel',hours:['✈️ Vuelo 07:00 MAD→LHR','🚌 Bus 11:15 LHR→Southampton','🚢 Embarque hasta 19:00'],tip:'Con cuatro adultos y dos bebés, prepara los documentos y el portabebés a mano. El bus National Express desde Heathrow tarda ~1h30.'},
+  {date:'2026-05-17',label:'Día 1',place:'En Alta Mar',flag:'🌊',country:'Mar del Norte',type:'sea',hours:['🌊 Todo el día navegando'],tip:'Explora el barco con los peques. Localiza guardería, piscina cubierta y restaurantes. Día de descanso post-vuelo.'},
+  {date:'2026-05-18',label:'Día 2',place:'South Queensferry',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',country:'Escocia · Anclado',type:'port',hours:['⚓ 08:00 llegada','🚌 Bus lanzadera → Edimburgo','🚢 18:00 salida'],tip:'Bus lanzadera ~20 min al centro de Edimburgo. El castillo y el Royal Mile son impresionantes. El Puente Forth cerca del amarre.'},
+  {date:'2026-05-19',label:'Día 3',place:'Stavanger',flag:'🇳🇴',country:'Noruega · Lysefijord',type:'port',hours:['⚓ 14:00 llegada','🚢 22:00 salida'],tip:'Gamle Stavanger (casco antiguo de madera) perfecto con peques. Si alguien quiere Preikestolen (3h excursión), organizaros en parejas.'},
+  {date:'2026-05-20',label:'Día 4',place:'Haugesund',flag:'🇳🇴',country:'Noruega',type:'port',hours:['⚓ 07:00 llegada','🚢 18:00 salida'],tip:'Ciudad peatonal y tranquila, perfecta con carriola. Paseo por el fiordo y mercado local. Día relajado.'},
+  {date:'2026-05-21',label:'Día 5',place:'Kristiansand',flag:'🇳🇴',country:'Noruega',type:'port',hours:['⚓ 09:00 llegada','🚢 18:00 salida'],tip:'¡El Zoo de Kristiansand es uno de los mejores de Escandinavia! Los peques lo van a flipar. Reserva online antes de ir.'},
+  {date:'2026-05-22',label:'Día 6',place:'En Alta Mar',flag:'🌊',country:'Regreso · Mar del Norte',type:'sea',hours:['🌊 Todo el día navegando'],tip:'Último día a bordo. Aprovecha los restaurantes, shows y spa. Prepara el equipaje por la noche.'},
+  {date:'2026-05-23',label:'Desembarque',place:'Southampton',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',country:'Reino Unido',type:'travel',hours:['🚢 07:00 desembarque','🚌 Bus → Heathrow','✈️ 18:45 vuelo LHR→MAD'],tip:'Desembarque temprano. Tiempo holgado hasta el vuelo de tarde. Guarda libras para el bus de vuelta.'},
 ];
 
-const PACKING=[
-  {cat:'👶 Bebés (esencial)',items:['Pañales (stock extra)','Toallitas húmedas','Crema de pañal','Leche / comida bebé','Portabebés x2','Chupetes repuesto','Juguetes favoritos','Medicación bebé','Cambiador portátil','Ropa abrigo peques x7','Pijamas peques']},
-  {cat:'🧳 Ropa adultos',items:['Ropa de abrigo (fiordos ~10°)','Impermeable / chubasquero x4','Calzado cómodo impermeable','Ropa elegante (cena barco)','Ropa interior x7','Pijamas']},
-  {cat:'📄 Documentos',items:['Pasaportes (6 personas)','Documentación MSC','Tarjetas embarque vuelo','Seguro de viaje','Números vuelo Iberia','Reserva National Express']},
+const PACK=[
+  {cat:'👶 Bebés',items:['Pañales (stock extra)','Toallitas húmedas','Crema de pañal','Leche / comida bebé','Portabebés x2','Chupetes repuesto','Juguetes favoritos','Medicación bebé','Cambiador portátil','Ropa abrigo peques x7','Pijamas peques']},
+  {cat:'🧳 Ropa adultos',items:['Ropa de abrigo (fiordos ~10°)','Impermeable / chubasquero x4','Calzado impermeable cómodo','Ropa elegante (cena a bordo)','Ropa interior x7','Pijamas x4']},
+  {cat:'📄 Documentos',items:['Pasaportes (6 personas)','Documentación MSC','Tarjetas embarque vuelo','Seguro de viaje','Nº vuelo Iberia (pendiente)','Reserva National Express']},
   {cat:'💊 Salud',items:['Botiquín básico','Antimareo (meclizina)','Crema solar','Medicación habitual','Termómetro']},
-  {cat:'📱 Tecnología',items:['Cargadores','Adaptador UK tipo G x2','Power bank','Auriculares','Cámara / GoPro']},
+  {cat:'📱 Tecnología',items:['Cargadores x4','Adaptador UK tipo G x2','Power bank','Auriculares','Cámara / GoPro']},
 ];
 
 let packState={};
 
-/* ── INIT ───────────────────────────────────────────────── */
-function init(){
+/* ════════════════════ INIT ════════════════════════════════ */
+function initApp(){
+  buildToday();
   buildTimeline();
   buildPacking();
-  updateToday();
+  startCountdown();
 }
-if(sessionStorage.getItem(SESSION_KEY)==='1') init();
 
-/* ── TIMELINE ───────────────────────────────────────────── */
-function buildTimeline(){
-  const c=document.getElementById('tl-container');
+/* ════════════════════ TODAY ═══════════════════════════════ */
+function buildToday(){
   const today=new Date();today.setHours(0,0,0,0);
-  ITINERARY.forEach((d,i)=>{
+  const start=new Date('2026-05-16');start.setHours(0,0,0,0);
+  const curr=DAYS.find(d=>{const dt=new Date(d.date);dt.setHours(0,0,0,0);return dt.getTime()===today.getTime()});
+  const title=document.getElementById('hero-title');
+  const sub=document.getElementById('hero-sub');
+  const pills=document.getElementById('hero-pills');
+  if(curr){
+    title.textContent=curr.flag+' '+curr.place;
+    sub.textContent=curr.country;
+    pills.innerHTML=curr.hours.map(h=>`<div class="hero-pill">${h}</div>`).join('');
+  } else if(today<start){
+    const diff=Math.round((start-today)/86400000);
+    title.textContent=diff===1?'¡Mañana partís! 🎉':`Faltan ${diff} días`;
+    sub.textContent='El MSC Virtuosa sale el 16 de mayo';
+    pills.innerHTML='<div class="hero-pill blue">Southampton</div><div class="hero-pill green">Noruega</div>';
+  } else {
+    title.textContent='Viaje completado 🏠';
+    sub.textContent='Esperamos que fuera increíble';
+    pills.innerHTML='';
+  }
+}
+
+/* ════════════════════ COUNTDOWN ═══════════════════════════ */
+function startCountdown(){
+  function tick(){
+    const start=new Date('2026-05-16T07:00:00');
+    const now=new Date();
+    const diff=start-now;
+    const dEl=document.getElementById('cd-d'),hEl=document.getElementById('cd-h'),mEl=document.getElementById('cd-m'),sEl=document.getElementById('cd-s');
+    if(!dEl)return;
+    if(diff<=0){document.getElementById('countdown-row').innerHTML='<div style="font-size:15px;color:var(--blue);padding:8px">🚢 ¡Estáis de viaje!</div>';return;}
+    const d=Math.floor(diff/86400000);
+    const h=Math.floor((diff%86400000)/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    const s=Math.floor((diff%60000)/1000);
+    dEl.textContent=d;hEl.textContent=String(h).padStart(2,'0');mEl.textContent=String(m).padStart(2,'0');sEl.textContent=String(s).padStart(2,'0');
+  }
+  tick();setInterval(tick,1000);
+}
+
+/* ════════════════════ TIMELINE ════════════════════════════ */
+function buildTimeline(){
+  const root=document.getElementById('tl-root');
+  const today=new Date();today.setHours(0,0,0,0);
+  DAYS.forEach((d,i)=>{
     const dt=new Date(d.date);dt.setHours(0,0,0,0);
     const isToday=dt.getTime()===today.getTime(),isPast=dt<today;
-    const tc=isToday?'today':isPast?'past':'future';
-    const badge=d.type==='sea'?'<span class="tl-badge sea-b">Alta mar</span>':d.type==='port'?'<span class="tl-badge port-b">Puerto</span>':'<span class="tl-badge travel-b">Viaje</span>';
-    const el=document.createElement('div');el.className='tl-item';
-    el.innerHTML=`<div class="tl-dot ${tc}"></div><div class="tl-card ${tc}">
-      <div class="tl-top"><div><div class="tl-date">${d.label} · ${new Date(d.date).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})}</div></div>
-      <div>${badge}${isToday?'<span class="tl-badge today-b" style="margin-left:4px">Hoy</span>':''}</div></div>
-      <div class="tl-place">${d.flag} ${d.place}</div>
-      <div class="tl-sub">${d.country}</div>
-      <div class="tl-pills">${d.hours.map(h=>`<span class="tl-pill">${h}</span>`).join('')}</div>
-      ${d.tip?`<div class="tl-tip">💡 ${d.tip}</div>`:''}</div>`;
-    c.appendChild(el);
-    setTimeout(()=>el.classList.add('visible'),i*80);
+    const dotClass=isToday?'today':isPast?'past':'';
+    const badge=d.type==='sea'?'sea':d.type==='port'?'port':'travel';
+    const badgeLabel=d.type==='sea'?'Alta mar':d.type==='port'?'Puerto':'Viaje';
+    const item=document.createElement('div');item.className='tl-item';
+    item.innerHTML=`
+      <div class="tl-left">
+        <div class="tl-line-seg ${i===0?'':'colored'} top"></div>
+        <div class="tl-dot-wrap"><div class="tl-dot ${dotClass}"></div></div>
+        <div class="tl-line-seg colored bottom"></div>
+      </div>
+      <div class="tl-right">
+        <div class="tl-card-ios ${isToday?'today':''}">
+          <div class="tl-card-header">
+            <div class="tl-card-meta">
+              <span>${d.label} · ${new Date(d.date).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})}</span>
+              <span style="display:flex;gap:4px">
+                <span class="tl-badge-ios ${badge}">${badgeLabel}</span>
+                ${isToday?'<span class="tl-badge-ios today">Hoy</span>':''}
+              </span>
+            </div>
+            <div class="tl-place-name">${d.flag} ${d.place}</div>
+          </div>
+          <div class="tl-card-body">
+            <div class="tl-hours">${d.hours.map(h=>`<span class="tl-hour-chip">${h}</span>`).join('')}</div>
+            ${d.tip?`<div class="tl-tip-ios">💡 ${d.tip}</div>`:''}
+          </div>
+        </div>
+      </div>`;
+    root.appendChild(item);
+    setTimeout(()=>item.style.opacity='1',i*60);
   });
 }
 
-/* ── PACKING ────────────────────────────────────────────── */
+/* ════════════════════ PACKING ═════════════════════════════ */
 function buildPacking(){
-  const list=document.getElementById('pack-list');
-  PACKING.forEach(cat=>{
-    const sec=document.createElement('div');sec.className='pack-cat';
-    sec.innerHTML=`<div class="pack-cat-title">${cat.cat}</div>`;
+  const root=document.getElementById('pack-root');
+  PACK.forEach(cat=>{
+    const wrap=document.createElement('div');wrap.className='ios-section';
+    wrap.innerHTML=`<div class="ios-section-label">${cat.cat}</div>`;
+    const card=document.createElement('div');card.className='ios-card';
     cat.items.forEach(item=>{
-      const id=btoa(cat.cat+item);packState[id]=false;
-      const row=document.createElement('div');row.className='pack-item';
-      row.innerHTML=`<div class="pack-check"></div><div class="pack-name">${item}</div>`;
-      row.onclick=()=>{packState[id]=!packState[id];row.classList.toggle('checked',packState[id]);row.querySelector('.pack-check').textContent=packState[id]?'✓':'';updateProgress();};
-      sec.appendChild(row);
+      const id=btoa(encodeURIComponent(cat.cat+item));
+      packState[id]=false;
+      const row=document.createElement('div');row.className='pack-item-ios';
+      row.innerHTML=`<div class="pack-check-ios"></div><div class="pack-name-ios">${item}</div>`;
+      row.onclick=()=>{
+        packState[id]=!packState[id];
+        row.classList.toggle('checked',packState[id]);
+        row.querySelector('.pack-check-ios').textContent=packState[id]?'✓':'';
+        updatePack();
+      };
+      card.appendChild(row);
     });
-    list.appendChild(sec);
+    wrap.appendChild(card);root.appendChild(wrap);
   });
-  updateProgress();
+  updatePack();
 }
 
-function updateProgress(){
+function updatePack(){
   const all=Object.keys(packState).length,done=Object.values(packState).filter(Boolean).length;
   const pct=all?Math.round(done/all*100):0;
   document.getElementById('pack-bar').style.width=pct+'%';
   document.getElementById('pack-pct').textContent=pct+'%';
 }
 
-/* ── TODAY ──────────────────────────────────────────────── */
-function updateToday(){
-  const today=new Date();today.setHours(0,0,0,0);
-  const start=new Date('2026-05-16');start.setHours(0,0,0,0);
-  const curr=ITINERARY.find(d=>{const dt=new Date(d.date);dt.setHours(0,0,0,0);return dt.getTime()===today.getTime()});
-  const main=document.getElementById('today-main'),sub=document.getElementById('today-sub2'),pills=document.getElementById('today-pills');
-  if(curr){
-    main.textContent=curr.flag+' '+curr.place;
-    sub.textContent=curr.country;
-    pills.innerHTML=curr.hours.map(h=>`<span class="tl-pill">${h}</span>`).join('');
-  } else if(today<start){
-    const diff=Math.round((start-today)/86400000);
-    main.textContent=diff===1?'¡Mañana salís! 🎉':'Faltan '+diff+' días';
-    sub.textContent='El crucero sale el 16 de mayo desde Southampton';
-    pills.innerHTML='';
-  } else {
-    main.textContent='Viaje completado 🏠';
-    sub.textContent='Esperamos que fuera increíble';
-    pills.innerHTML='';
-  }
-  const strip=document.getElementById('countdown-strip');
-  const diff2=Math.max(0,Math.floor((start-today)/86400000));
-  if(diff2>0){
-    const now=new Date();
-    strip.innerHTML=`<div class="cd-unit"><span class="cd-num" id="cd-d">${diff2}</span><span class="cd-label">Días</span></div>
-      <div class="cd-sep">:</div>
-      <div class="cd-unit"><span class="cd-num" id="cd-h">${String(now.getHours()).padStart(2,'0')}</span><span class="cd-label">Horas</span></div>
-      <div class="cd-sep">:</div>
-      <div class="cd-unit"><span class="cd-num" id="cd-m">${String(now.getMinutes()).padStart(2,'0')}</span><span class="cd-label">Min</span></div>`;
-    setInterval(()=>{
-      const n=new Date();
-      const dd=Math.max(0,Math.floor((start-n)/86400000));
-      const dEl=document.getElementById('cd-d'),hEl=document.getElementById('cd-h'),mEl=document.getElementById('cd-m');
-      if(dEl)dEl.textContent=dd;
-      if(hEl)hEl.textContent=String(n.getHours()).padStart(2,'0');
-      if(mEl)mEl.textContent=String(n.getMinutes()).padStart(2,'0');
-    },30000);
-  } else if(today>=start&&today<=new Date('2026-05-23')){
-    strip.innerHTML=`<div style="font-size:13px;color:var(--teal)">🚢 ¡Estáis de crucero!</div>`;
-  }
+/* ════════════════════ MAP TOOLTIP ═════════════════════════ */
+function mapTip(title,info,px,py){
+  const g=document.getElementById('map-tip-g');
+  const bg=document.getElementById('tip-bg');
+  const t1=document.getElementById('tip-t1');
+  const t2=document.getElementById('tip-t2');
+  const svg=document.getElementById('the-map');
+  const vw=svg.viewBox.baseVal.width;
+  const tw=Math.max(title.length,info.length)*6.2+20;
+  const x=Math.min(px+8,vw-tw-10);
+  const y=Math.max(py-54,8);
+  bg.setAttribute('x',x);bg.setAttribute('y',y);bg.setAttribute('width',tw);
+  t1.setAttribute('x',x+10);t1.setAttribute('y',y+17);t1.textContent=title;
+  t2.setAttribute('x',x+10);t2.setAttribute('y',y+33);t2.textContent=info;
+  bg.setAttribute('width',tw);
+  g.setAttribute('opacity','1');
+  clearTimeout(g._t);g._t=setTimeout(()=>g.setAttribute('opacity','0'),3000);
 }
 
-/* ── MAP TOOLTIP ────────────────────────────────────────── */
-function showTT(e,title,info){
-  const tt=document.getElementById('map-tt');
-  const svgRect=document.getElementById('map-svg').getBoundingClientRect();
-  document.getElementById('tt-title').textContent=title;
-  document.getElementById('tt-info').textContent=info;
-  const x=e.clientX-svgRect.left,y=e.clientY-svgRect.top;
-  tt.style.left=Math.min(x+12,svgRect.width-180)+'px';
-  tt.style.top=Math.max(y-40,8)+'px';
-  tt.classList.add('show');
-  setTimeout(()=>tt.classList.remove('show'),3000);
-}
-
-/* ── NAV ────────────────────────────────────────────────── */
-function show(id){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  ['hoy','mapa','ruta','cabina','pack'].forEach((t,i)=>{if(t===id)document.querySelectorAll('.nb')[i].classList.add('active');});
+/* ════════════════════ TABS ════════════════════════════════ */
+const TABS=['hoy','mapa','ruta','cabina','pack'];
+function goTab(id){
+  TABS.forEach(t=>{
+    document.getElementById('sec-'+t).classList.toggle('active',t===id);
+    document.getElementById('tab-'+t).classList.toggle('active',t===id);
+  });
+  document.querySelector('.content').scrollTo(0,0);
 }
 </script>
 </body>
