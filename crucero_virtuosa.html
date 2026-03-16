@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MSC Virtuosa · Fiordos 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & VARS ─────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#050e1f;--navy2:#0a1a30;--card:#0d1f35;--card2:#0f2540;
+  --teal:#00b4cc;--teal2:#00d4f0;--gold:#f0c060;--gold2:#ffd980;
+  --green:#3db87a;--muted:#4a7090;--light:#a0c8e0;--white:#eef4f8;
+  --border:rgba(0,180,204,0.15);--red:#e05050;
+}
+body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;overflow-x:hidden;min-height:100vh}
+
+/* ── LOCK SCREEN ─────────────────────────────────────────── */
+#lock-screen{
+  position:fixed;inset:0;z-index:1000;
+  background:radial-gradient(ellipse at 50% 30%,#0a2040 0%,#050e1f 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;text-align:center;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+#lock-screen>*{animation:fadeIn .6s ease both}
+#lock-screen>*:nth-child(2){animation-delay:.1s}
+#lock-screen>*:nth-child(3){animation-delay:.2s}
+#lock-screen>*:nth-child(4){animation-delay:.3s}
+#lock-screen>*:nth-child(5){animation-delay:.4s}
+
+.lock-ship{font-size:52px;margin-bottom:4px}
+@keyframes rock{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.lock-ship{animation:rock 3s ease-in-out infinite,fadeIn .6s ease both!important}
+
+.lock-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;
+  background:linear-gradient(90deg,var(--teal),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:4px}
+.lock-sub{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:40px}
+
+.lock-box{width:100%;max-width:320px}
+.lock-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
+  text-align:left;margin-bottom:8px;display:block}
+.lock-input-wrap{position:relative;margin-bottom:14px}
+#pwd-input{
+  width:100%;padding:14px 46px 14px 16px;
+  background:rgba(0,180,204,0.06);border:1px solid var(--border);
+  border-radius:10px;color:var(--white);font-size:16px;font-family:'DM Sans',sans-serif;
+  outline:none;transition:border-color .2s;letter-spacing:2px;
+}
+#pwd-input:focus{border-color:rgba(0,180,204,0.5)}
+#pwd-input.error{border-color:var(--red);animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.eye-btn{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);
+  padding:4px;transition:color .2s;
+}
+.eye-btn:hover{color:var(--light)}
+.lock-btn{
+  width:100%;padding:14px;border:none;border-radius:10px;cursor:pointer;
+  background:linear-gradient(135deg,var(--teal),#0080a0);
+  color:var(--white);font-size:15px;font-family:'DM Sans',sans-serif;font-weight:500;
+  letter-spacing:.5px;transition:opacity .2s,transform .1s;
+}
+.lock-btn:hover{opacity:.9}
+.lock-btn:active{transform:scale(.98)}
+.lock-btn:disabled{opacity:.5;cursor:not-allowed}
+.lock-error{font-size:12px;color:var(--red);margin-top:8px;min-height:18px;text-align:center;transition:opacity .3s}
+.lock-hint{font-size:11px;color:var(--muted);margin-top:20px;line-height:1.6;text-align:center}
+.lock-dots{display:flex;justify-content:center;gap:8px;margin-bottom:32px}
+.lock-dot{width:6px;height:6px;border-radius:50%;background:var(--border)}
+.lock-dot:nth-child(1){background:var(--teal)}
+.lock-dot:nth-child(2){background:rgba(0,180,204,.5)}
+.lock-dot:nth-child(3){background:rgba(0,180,204,.2)}
+
+/* ── WAVES ────────────────────────────────────────────────── */
+.waves-bg{position:fixed;bottom:0;left:0;width:100%;height:180px;pointer-events:none;z-index:0;opacity:.18}
+.waves-bg svg{width:100%;height:100%}
+@keyframes wave1{to{transform:translateX(-50%)}}
+@keyframes wave2{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@media(prefers-reduced-motion:no-preference){.w1{animation:wave1 12s linear infinite}.w2{animation:wave2 18s linear infinite}}
+
+/* ── HEADER ────────────────────────────────────────────────── */
+.header{position:relative;z-index:2;padding:24px 20px 16px;text-align:center;border-bottom:1px solid var(--border)}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,180,204,.12) 0%,transparent 70%);pointer-events:none}
+@media(prefers-reduced-motion:no-preference){
+  .header h1{animation:fadeIn .6s ease both}
+  .header .subtitle{animation:fadeIn .6s .15s ease both}
+  .crew{animation:fadeIn .6s .3s ease both}
+}
+.ship-anim{font-size:36px;display:block;margin-bottom:6px}
+@media(prefers-reduced-motion:no-preference){.ship-anim{animation:rock 3s ease-in-out infinite}}
+.header h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;
+  background:linear-gradient(90deg,var(--teal),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header .subtitle{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.crew{display:inline-flex;align-items:center;gap:8px;background:rgba(0,180,204,.08);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--light);margin-top:10px}
+.countdown-strip{display:flex;justify-content:center;gap:16px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.cd-unit{text-align:center}
+.cd-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold);line-height:1;display:block}
+.cd-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.cd-sep{font-size:24px;color:var(--border);align-self:flex-start;margin-top:4px}
+
+/* ── NAV ───────────────────────────────────────────────────── */
+.nav{display:flex;background:var(--navy2);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:10}
+.nav::-webkit-scrollbar{display:none}
+.nb{flex:1;min-width:60px;padding:12px 2px;font-size:10px;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--muted);background:none;border:none;cursor:pointer;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.nb.active{color:var(--teal);border-bottom-color:var(--teal)}
+.nb-icon{display:block;font-size:16px;margin-bottom:2px}
+
+/* ── SECTIONS ──────────────────────────────────────────────── */
+.section{display:none;padding:0;position:relative;z-index:2;min-height:60vh}
+.section.active{display:block}
+.sec-pad{padding:16px}
+
+/* ── MAP ───────────────────────────────────────────────────── */
+#mapa{padding:0}
+.map-container{position:relative;width:100%;height:380px;overflow:hidden;background:linear-gradient(180deg,#051525 0%,#071e35 40%,#083050 100%)}
+.map-container svg{position:absolute;inset:0;width:100%;height:100%}
+.map-legend{padding:14px 16px;background:var(--card);border-top:1px solid var(--border)}
+.legend-title{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.legend-items{display:flex;flex-wrap:wrap;gap:8px}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--light);background:rgba(0,180,204,.08);border:1px solid var(--border);border-radius:16px;padding:4px 10px;cursor:pointer;transition:all .2s}
+.leg-item:hover{background:rgba(0,180,204,.15);border-color:var(--teal)}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+.map-tooltip{position:absolute;background:var(--card2);border:1px solid var(--teal);border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;z-index:20;opacity:0;transition:opacity .2s;max-width:170px}
+.map-tooltip.show{opacity:1}
+.tt-title{font-weight:500;color:var(--teal);margin-bottom:2px}
+.tt-info{color:var(--light);font-size:11px}
+
+/* ── TIMELINE ──────────────────────────────────────────────── */
+.tl-wrap{padding:20px 16px;position:relative}
+.tl-line{position:absolute;left:36px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--teal) 0%,var(--gold) 50%,var(--muted) 100%);opacity:.3}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(240,192,96,.5)}50%{box-shadow:0 0 0 8px rgba(240,192,96,0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.tl-item{position:relative;padding:0 0 20px 68px;opacity:0}
+@media(prefers-reduced-motion:no-preference){.tl-item.visible{animation:slideIn .5s ease both}}
+.tl-item.visible{opacity:1}
+.tl-dot{position:absolute;left:28px;top:18px;width:18px;height:18px;border-radius:50%;border:2px solid var(--teal);background:var(--navy);z-index:1}
+.tl-dot.today{background:var(--gold);border-color:var(--gold2)}
+@media(prefers-reduced-motion:no-preference){.tl-dot.today{animation:pulseDot 2s ease infinite}}
+.tl-dot.past{border-color:var(--muted);background:var(--muted)}
+.tl-dot.future{background:var(--navy2)}
+.tl-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;transition:all .3s;cursor:pointer}
+.tl-card:hover{border-color:rgba(0,180,204,.4);transform:translateX(2px)}
+.tl-card.today{border-color:rgba(240,192,96,.4);background:rgba(240,192,96,.04)}
+.tl-card.past{opacity:.6}
+.tl-top{display:flex;justify-content:space-between;align-items:flex-start}
+.tl-date{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.tl-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500}
+.tl-badge.today-b{background:rgba(240,192,96,.2);color:var(--gold);border:1px solid rgba(240,192,96,.4)}
+.tl-badge.sea-b{background:rgba(0,100,140,.3);color:var(--teal);border:1px solid rgba(0,180,204,.2)}
+.tl-badge.port-b{background:rgba(61,184,122,.15);color:var(--green);border:1px solid rgba(61,184,122,.3)}
+.tl-badge.travel-b{background:rgba(200,100,50,.15);color:#f08050;border:1px solid rgba(200,100,50,.3)}
+.tl-place{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-top:6px}
+.tl-sub{font-size:12px;color:var(--light);margin-top:3px}
+.tl-pills{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.tl-pill{font-size:11px;background:rgba(0,180,204,.1);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--teal2)}
+.tl-tip{font-size:11px;color:var(--muted);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+
+/* ── MISC ──────────────────────────────────────────────────── */
+.weather-strip{background:rgba(0,180,204,.06);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.weather-info{flex:1}.weather-title{font-size:12px;color:var(--light)}.weather-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.weather-temp{font-family:'Playfair Display',serif;font-size:22px;color:var(--teal)}
+.pack-section{padding:16px}.pack-cat{margin-bottom:16px}
+.pack-cat-title{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.pack-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all .2s}
+.pack-item.checked{opacity:.5}.pack-item.checked .pack-name{text-decoration:line-through;color:var(--muted)}
+.pack-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+.pack-item.checked .pack-check{background:var(--teal);border-color:var(--teal)}
+.pack-name{font-size:13px;flex:1}
+.pack-progress{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.pack-bar-wrap{flex:1;height:6px;background:rgba(0,180,204,.1);border-radius:3px;overflow:hidden}
+.pack-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:3px;transition:width .4s ease}
+.pack-pct{font-size:13px;font-weight:500;color:var(--gold);min-width:32px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.info-num{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;line-height:1}
+.info-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.info-card.teal .info-num{color:var(--teal)}.info-card.gold .info-num{color:var(--gold)}.info-card.white .info-num{color:var(--white)}.info-card.green .info-num{color:var(--green)}
+.today-hero{padding:16px}
+.today-card{background:linear-gradient(135deg,var(--card2) 0%,#0a2840 100%);border:1px solid rgba(0,180,204,.3);border-radius:14px;padding:20px;position:relative;overflow:hidden;margin-bottom:14px}
+.today-card::before{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,180,204,.12) 0%,transparent 70%)}
+.today-pretitle{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:6px}
+.today-main{font-family:'Playfair Display',serif;font-size:26px;font-weight:700}
+.today-sub2{font-size:13px;color:var(--light);margin-top:6px}
+.today-pills{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.note-box{background:rgba(240,192,96,.07);border:1px solid rgba(240,192,96,.25);border-radius:8px;padding:12px;font-size:12px;color:var(--gold2);margin-top:12px;line-height:1.6}
+.sec-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.amenity-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.amenity{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:8px;font-size:13px}
+.transport-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.transport-row:last-child{border-bottom:none}
+.t-icon{width:34px;height:34px;border-radius:8px;background:rgba(0,180,204,.1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.t-route{font-size:13px;font-weight:500}.t-time{font-size:11px;color:var(--teal2);margin-top:1px}.t-detail{font-size:10px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     LOCK SCREEN
+══════════════════════════════════════════════════════════ -->
+<div id="lock-screen">
+  <div class="lock-ship">🚢</div>
+  <div class="lock-title">MSC Virtuosa · Fiordos 2026</div>
+  <div class="lock-sub">Acceso privado</div>
+  <div class="lock-dots"><div class="lock-dot"></div><div class="lock-dot"></div><div class="lock-dot"></div></div>
+  <div class="lock-box">
+    <label class="lock-label" for="pwd-input">Contraseña</label>
+    <div class="lock-input-wrap">
+      <input id="pwd-input" type="password" placeholder="••••••••••" autocomplete="off" spellcheck="false"
+             onkeydown="if(event.key==='Enter')unlock()">
+      <button class="eye-btn" id="eye-btn" onclick="toggleEye()" title="Mostrar contraseña">👁</button>
+    </div>
+    <button class="lock-btn" onclick="unlock()" id="unlock-btn">Entrar</button>
+    <div class="lock-error" id="lock-error"></div>
+    <div class="lock-hint">Acceso restringido · Solo para el grupo viajero</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     APP CONTENT (hidden until unlocked)
+══════════════════════════════════════════════════════════ -->
+<div id="app" style="display:none">
+
+<div class="waves-bg">
+  <svg viewBox="0 0 1440 180" preserveAspectRatio="none">
+    <g class="w1"><path d="M0,80 C180,40 360,120 540,80 C720,40 900,120 1080,80 C1260,40 1440,120 1620,80 C1800,40 1980,120 2160,80 C2340,40 2520,120 2700,80 L2880,80 L2880,180 L0,180 Z" fill="#00b4cc"/></g>
+    <g class="w2"><path d="M0,100 C200,60 400,140 600,100 C800,60 1000,140 1200,100 C1400,60 1600,140 1800,100 C2000,60 2200,140 2400,100 C2600,60 2800,140 2880,100 L2880,180 L0,180 Z" fill="#1a4a7a" opacity="0.6"/></g>
+  </svg>
+</div>
+
+<div class="header">
+  <span class="ship-anim">🚢</span>
+  <h1>MSC Virtuosa — Fiordos</h1>
+  <div class="subtitle">Norwegian Fjords · Mayo 2026</div>
+  <div class="crew">👨‍👩‍👧 4 adultos · 2 peques de 1,5 años</div>
+  <div class="countdown-strip" id="countdown-strip"></div>
+</div>
+
+<nav class="nav">
+  <button class="nb active" onclick="show('hoy')"><span class="nb-icon">🧭</span>Hoy</button>
+  <button class="nb" onclick="show('mapa')"><span class="nb-icon">🗺️</span>Mapa</button>
+  <button class="nb" onclick="show('ruta')"><span class="nb-icon">📍</span>Ruta</button>
+  <button class="nb" onclick="show('cabina')"><span class="nb-icon">🛏️</span>Cabina</button>
+  <button class="nb" onclick="show('pack')"><span class="nb-icon">🧳</span>Maleta</button>
+</nav>
+
+<!-- HOY -->
+<div id="hoy" class="section active">
+  <div class="today-hero">
+    <div class="today-card">
+      <div class="today-pretitle">Estado del viaje</div>
+      <div class="today-main" id="today-main">Cargando...</div>
+      <div class="today-sub2" id="today-sub2"></div>
+      <div class="today-pills" id="today-pills"></div>
+    </div>
+    <div class="info-grid">
+      <div class="info-card teal"><div class="info-num">8</div><div class="info-label">Días viaje</div></div>
+      <div class="info-card gold"><div class="info-num">4</div><div class="info-label">Puertos</div></div>
+      <div class="info-card white"><div class="info-num">8039</div><div class="info-label">Camarote</div></div>
+      <div class="info-card green"><div class="info-num">C8</div><div class="info-label">Cubierta</div></div>
+    </div>
+    <div class="sec-title">🌡️ Clima esperado en ruta</div>
+    <div class="weather-strip">
+      <div style="font-size:24px">⛅</div>
+      <div class="weather-info"><div class="weather-title">Fiordos Noruegos — Mayo</div><div class="weather-sub">Variable, algo de lluvia. Lleva capas y chubasquero.</div></div>
+      <div class="weather-temp">8–14°</div>
+    </div>
+    <div class="weather-strip">
+      <div style="font-size:24px">🏴󠁧󠁢󠁳󠁣󠁴󠁿</div>
+      <div class="weather-info"><div class="weather-title">Edimburgo / Southampton</div><div class="weather-sub">Nublado con claros, posible lluvia</div></div>
+      <div class="weather-temp">10–16°</div>
+    </div>
+    <div class="note-box">👶 <strong>Con los peques:</strong> Lleva portabebés además del carrito — los adoquines de Edimburgo y los muelles noruegos lo agradecen. En el MSC Virtuosa hay guardería a bordo, pregunta al embarcar.</div>
+  </div>
+</div>
+
+<!-- MAPA -->
+<div id="mapa" class="section">
+  <div class="map-container">
+    <div class="map-tooltip" id="map-tt"><div class="tt-title" id="tt-title"></div><div class="tt-info" id="tt-info"></div></div>
+    <svg id="map-svg" viewBox="0 0 400 380" preserveAspectRatio="xMidYMid meet">
+      <rect width="400" height="380" fill="#071e35"/>
+      <path d="M60,320 L55,290 L65,260 L58,230 L70,200 L80,180 L75,155 L85,130 L95,110 L105,95 L110,80 L120,75 L130,80 L140,90 L145,105 L138,125 L145,140 L150,160 L145,175 L155,185 L160,200 L155,215 L160,230 L165,245 L170,260 L165,280 L170,310 L160,330 L150,345 L130,355 L110,350 L90,345 L70,340 Z" fill="#1a3050" stroke="#2a4a6a" stroke-width="0.8"/>
+      <path d="M100,95 L105,70 L115,50 L130,35 L145,30 L155,45 L145,60 L140,78 L130,80 L120,75 L110,80 L105,95 Z" fill="#1e3858" stroke="#2a4a6a" stroke-width="0.8"/>
+      <path d="M240,10 L260,20 L280,35 L285,55 L275,75 L270,100 L265,125 L270,150 L265,170 L255,185 L248,200 L250,180 L245,160 L240,140 L235,120 L230,100 L225,80 L230,60 L235,35 L238,15 Z" fill="#1a3050" stroke="#2a4a6a" stroke-width="0.8"/>
+      <path d="M132,320 C145,280 160,240 185,195 C205,155 240,120 255,80 C252,65 257,52 258,40" fill="none" stroke="rgba(0,180,204,.2)" stroke-width="22" stroke-linecap="round"/>
+      <path d="M132,320 C145,280 160,240 185,195 C210,148 240,115 248,80 C252,65 257,52 258,40" fill="none" stroke="var(--teal)" stroke-width="1.5" stroke-dasharray="6 4" stroke-linecap="round" opacity="0.8"/>
+      <path d="M258,40 C248,80 240,120 220,200 C208,240 190,275 175,305 C165,325 150,335 132,320" fill="none" stroke="var(--gold)" stroke-width="1" stroke-dasharray="4 6" opacity="0.5"/>
+      <!-- Southampton -->
+      <g style="cursor:pointer" onclick="showTT(event,'Southampton 🏴󠁧󠁢󠁥󠁮󠁧󠁿','Puerto base · Embarque 16/05 · Desembarque 23/05')">
+        <circle cx="132" cy="320" r="10" fill="rgba(0,180,204,.15)" stroke="var(--teal)" stroke-width="0.5"/>
+        <circle cx="132" cy="320" r="5" fill="var(--teal)"/>
+        <circle cx="132" cy="320" r="5" fill="none" stroke="var(--teal2)" stroke-width="1" opacity="0.6"><animate attributeName="r" values="5;14;5" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite"/></circle>
+        <text x="145" y="315" font-size="9" fill="var(--teal2)" font-family="DM Sans,sans-serif" font-weight="500">Southampton</text>
+        <text x="145" y="326" font-size="8" fill="#4a7090" font-family="DM Sans,sans-serif">16 &amp; 23 Mayo</text>
+      </g>
+      <!-- South Queensferry -->
+      <g style="cursor:pointer" onclick="showTT(event,'South Queensferry 🏴󠁧󠁢󠁳󠁣󠁴󠁿','18 Mayo · 08:00–18:00 · Anclado · Puerta de Edimburgo')">
+        <circle cx="112" cy="145" r="8" fill="rgba(61,184,122,.15)" stroke="var(--green)" stroke-width="0.5"/>
+        <circle cx="112" cy="145" r="4" fill="var(--green)"/>
+        <circle cx="112" cy="145" r="4" fill="none" stroke="var(--green)" stroke-width="1" opacity="0.6"><animate attributeName="r" values="4;12;4" dur="2.5s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite" begin="0.5s"/></circle>
+        <text x="126" y="141" font-size="9" fill="#3db87a" font-family="DM Sans,sans-serif" font-weight="500">S. Queensferry</text>
+        <text x="126" y="152" font-size="8" fill="#4a7090" font-family="DM Sans,sans-serif">18 Mayo</text>
+      </g>
+      <!-- Stavanger -->
+      <g style="cursor:pointer" onclick="showTT(event,'Stavanger 🇳🇴','19 Mayo · 14:00–22:00 · Lysefijord')">
+        <circle cx="255" cy="120" r="8" fill="rgba(240,192,96,.15)" stroke="var(--gold)" stroke-width="0.5"/>
+        <circle cx="255" cy="120" r="4" fill="var(--gold)"/>
+        <circle cx="255" cy="120" r="4" fill="none" stroke="var(--gold2)" stroke-width="1" opacity="0.6"><animate attributeName="r" values="4;12;4" dur="2.5s" repeatCount="indefinite" begin="1s"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite" begin="1s"/></circle>
+        <text x="228" y="115" font-size="9" fill="var(--gold2)" font-family="DM Sans,sans-serif" font-weight="500" text-anchor="end">Stavanger</text>
+        <text x="228" y="126" font-size="8" fill="#4a7090" font-family="DM Sans,sans-serif" text-anchor="end">19 Mayo</text>
+      </g>
+      <!-- Haugesund -->
+      <g style="cursor:pointer" onclick="showTT(event,'Haugesund 🇳🇴','20 Mayo · 07:00–18:00')">
+        <circle cx="248" cy="90" r="8" fill="rgba(240,192,96,.12)" stroke="var(--gold)" stroke-width="0.5"/>
+        <circle cx="248" cy="90" r="4" fill="var(--gold)" opacity="0.7"/>
+        <circle cx="248" cy="90" r="4" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.5"><animate attributeName="r" values="4;11;4" dur="2.5s" repeatCount="indefinite" begin="1.5s"/><animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite" begin="1.5s"/></circle>
+        <text x="228" y="86" font-size="9" fill="var(--gold2)" font-family="DM Sans,sans-serif" font-weight="500" text-anchor="end">Haugesund</text>
+        <text x="228" y="97" font-size="8" fill="#4a7090" font-family="DM Sans,sans-serif" text-anchor="end">20 Mayo</text>
+      </g>
+      <!-- Kristiansand -->
+      <g style="cursor:pointer" onclick="showTT(event,'Kristiansand 🇳🇴','21 Mayo · 09:00–18:00 · Zoo Kristiansand')">
+        <circle cx="240" cy="165" r="8" fill="rgba(61,184,122,.15)" stroke="var(--green)" stroke-width="0.5"/>
+        <circle cx="240" cy="165" r="4" fill="var(--green)" opacity="0.8"/>
+        <circle cx="240" cy="165" r="4" fill="none" stroke="var(--green)" stroke-width="1" opacity="0.5"><animate attributeName="r" values="4;12;4" dur="2.5s" repeatCount="indefinite" begin="2s"/><animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite" begin="2s"/></circle>
+        <text x="228" y="161" font-size="9" fill="#3db87a" font-family="DM Sans,sans-serif" font-weight="500" text-anchor="end">Kristiansand</text>
+        <text x="228" y="172" font-size="8" fill="#4a7090" font-family="DM Sans,sans-serif" text-anchor="end">21 Mayo</text>
+      </g>
+      <!-- Compass -->
+      <g transform="translate(360,30)">
+        <circle r="18" fill="rgba(10,26,48,.8)" stroke="rgba(0,180,204,.3)" stroke-width="0.5"/>
+        <text font-size="7" fill="var(--teal2)" font-family="DM Sans,sans-serif" text-anchor="middle"><tspan x="0" y="-7">N</tspan><tspan x="0" y="11">S</tspan><tspan x="-9" y="3">O</tspan><tspan x="9" y="3">E</tspan></text>
+        <line x1="0" y1="-12" x2="0" y2="12" stroke="var(--muted)" stroke-width="0.5"/>
+        <line x1="-12" y1="0" x2="12" y2="0" stroke="var(--muted)" stroke-width="0.5"/>
+        <polygon points="0,-10 2.5,0 0,3 -2.5,0" fill="var(--teal)"/>
+      </g>
+    </svg>
+  </div>
+  <div class="map-legend">
+    <div class="legend-title">Puertos de escala — toca para info</div>
+    <div class="legend-items">
+      <div class="leg-item" onclick="showTT({clientX:200,clientY:200},'Southampton 🏴󠁧󠁢󠁥󠁮󠁧󠁿','Puerto base · 16 y 23 mayo')"><div class="leg-dot" style="background:var(--teal)"></div>Southampton</div>
+      <div class="leg-item" onclick="showTT({clientX:200,clientY:200},'South Queensferry 🏴󠁧󠁢󠁳󠁣󠁴󠁿','18 Mayo · Edimburgo')"><div class="leg-dot" style="background:var(--green)"></div>Edimburgo</div>
+      <div class="leg-item" onclick="showTT({clientX:200,clientY:200},'Stavanger 🇳🇴','19 Mayo · Lysefijord')"><div class="leg-dot" style="background:var(--gold)"></div>Stavanger</div>
+      <div class="leg-item" onclick="showTT({clientX:200,clientY:200},'Haugesund 🇳🇴','20 Mayo · 07:00–18:00')"><div class="leg-dot" style="background:var(--gold)"></div>Haugesund</div>
+      <div class="leg-item" onclick="showTT({clientX:200,clientY:200},'Kristiansand 🇳🇴','21 Mayo · Zoo Kristiansand')"><div class="leg-dot" style="background:var(--green)"></div>Kristiansand</div>
+    </div>
+  </div>
+</div>
+
+<!-- RUTA -->
+<div id="ruta" class="section">
+  <div class="tl-wrap">
+    <div class="tl-line"></div>
+    <div id="tl-container"></div>
+  </div>
+</div>
+
+<!-- CABINA -->
+<div id="cabina" class="section">
+  <div class="sec-pad">
+    <div style="background:linear-gradient(135deg,#0a2040,#0d3055);border:1px solid rgba(0,180,204,.3);border-radius:14px;padding:22px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(0,180,204,.08) 0%,transparent 60%)"></div>
+      <div style="font-size:40px;margin-bottom:8px">🛳️</div>
+      <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--gold)">8039</div>
+      <div style="font-size:13px;color:var(--teal2);margin-top:4px;letter-spacing:1.5px;text-transform:uppercase">Balcón Deluxe</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Cubierta 8 · 17 m²</div>
+    </div>
+    <div class="sec-title">🛠️ Equipamiento</div>
+    <div class="amenity-row">
+      <div class="amenity"><span style="font-size:16px">🌊</span>Balcón</div>
+      <div class="amenity"><span style="font-size:16px">🛋️</span>Área de estar</div>
+      <div class="amenity"><span style="font-size:16px">🚿</span>Baño completo</div>
+      <div class="amenity"><span style="font-size:16px">🔒</span>Caja fuerte</div>
+      <div class="amenity"><span style="font-size:16px">📺</span>TV interactiva</div>
+      <div class="amenity"><span style="font-size:16px">🍹</span>Minibar</div>
+      <div class="amenity"><span style="font-size:16px">❄️</span>Aire acond.</div>
+      <div class="amenity"><span style="font-size:16px">📡</span>WiFi (cargo extra)</div>
+    </div>
+    <div class="note-box">👶 Solicita cuna de viaje al embarcar. El sofá del área de estar puede reconvertirse. Barandilla del balcón alta, supervisa siempre a los peques.</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px">
+      <div class="sec-title" style="margin-bottom:10px">✈️ Transportes</div>
+      <div class="transport-row"><div class="t-icon">✈️</div><div style="flex:1"><div class="t-route">Madrid → Londres</div><div class="t-time">07:00 · 16 mayo</div><div class="t-detail">Iberia · Nº vuelo pendiente</div></div></div>
+      <div class="transport-row"><div class="t-icon">🚌</div><div style="flex:1"><div class="t-route">Heathrow → Southampton</div><div class="t-time">11:15–12:50 · 16 mayo</div><div class="t-detail">National Express</div></div></div>
+      <div class="transport-row"><div class="t-icon" style="background:rgba(240,192,96,.15)">🚢</div><div style="flex:1"><div class="t-route">MSC Virtuosa · 16–23 mayo</div><div class="t-time">Camarote 8039 · Cubierta 8</div><div class="t-detail">4 adultos · 2 peques</div></div></div>
+      <div class="transport-row"><div class="t-icon">🚌</div><div style="flex:1"><div class="t-route">Southampton → Heathrow</div><div class="t-time">23 mayo mañana</div><div class="t-detail">National Express</div></div></div>
+      <div class="transport-row"><div class="t-icon">✈️</div><div style="flex:1"><div class="t-route">Londres → Madrid</div><div class="t-time">18:45 · 23 mayo</div><div class="t-detail">Iberia · Nº vuelo pendiente</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MALETA -->
+<div id="pack" class="section">
+  <div class="pack-section">
+    <div class="pack-progress">
+      <div style="font-size:13px;color:var(--light)">Preparación maleta</div>
+      <div class="pack-bar-wrap"><div class="pack-bar" id="pack-bar" style="width:0%"></div></div>
+      <div class="pack-pct" id="pack-pct">0%</div>
+    </div>
+    <div id="pack-list"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ══════════════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════════════ -->
+<script>
+/* ── PASSWORD HASH (SHA-256 of "fiordos2026")
+   To change: run  echo -n "tupassword" | sha256sum
+   and replace the string below                          */
+const PWD_HASH = '22516ddccbf1af1d4ad8d9bd659b9d1f979b6b9a9ad2c37035ca024c6f9e5735';
+const SESSION_KEY = 'msc_virtuosa_auth';
+
+/* ── UNLOCK ─────────────────────────────────────────────── */
+async function sha256(msg){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function unlock(){
+  const input = document.getElementById('pwd-input');
+  const btn   = document.getElementById('unlock-btn');
+  const err   = document.getElementById('lock-error');
+  const val   = input.value.trim();
+  if(!val) return;
+  btn.disabled = true;
+  btn.textContent = '···';
+  const hash = await sha256(val);
+  if(hash === PWD_HASH){
+    sessionStorage.setItem(SESSION_KEY,'1');
+    showApp();
+  } else {
+    input.classList.add('error');
+    err.textContent = 'Contraseña incorrecta. Inténtalo de nuevo.';
+    setTimeout(()=>{ input.classList.remove('error'); input.value=''; input.focus(); },600);
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+  }
+}
+
+function showApp(){
+  const ls = document.getElementById('lock-screen');
+  ls.style.transition='opacity .5s ease';
+  ls.style.opacity='0';
+  setTimeout(()=>{ ls.style.display='none'; document.getElementById('app').style.display='block'; init(); },500);
+}
+
+function toggleEye(){
+  const i=document.getElementById('pwd-input');
+  i.type = i.type==='password'?'text':'password';
+}
+
+/* ── CHECK SESSION ──────────────────────────────────────── */
+if(sessionStorage.getItem(SESSION_KEY)==='1'){
+  document.getElementById('lock-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+}
+
+/* ── APP DATA ───────────────────────────────────────────── */
+const ITINERARY=[
+  {date:'2026-05-16',label:'Embarque',place:'Southampton',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',country:'Reino Unido',type:'travel',hours:['Vuelo 07:00 MAD→LHR','Bus 11:15 LHR→Southampton','Embarque hasta 19:00'],tip:'Llega con tiempo al aeropuerto — con cuatro adultos y dos bebés conviene ir holgados. Lleva el portabebés en el avión.'},
+  {date:'2026-05-17',label:'Día 1',place:'En Alta Mar',flag:'🌊',country:'Mar del Norte',type:'sea',hours:['Todo el día navegando'],tip:'Día perfecto para explorar el barco. Localiza guardería, piscina cubierta y puntos de interés con los peques.'},
+  {date:'2026-05-18',label:'Día 2',place:'South Queensferry',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',country:'Escocia · Anclado',type:'port',hours:['08:00 llegada','18:00 salida'],tip:'Bus lanzadera ~20 min a Edimburgo. El castillo y el Royal Mile son impresionantes. Dividíos en parejas para más agilidad con los carritos.'},
+  {date:'2026-05-19',label:'Día 3',place:'Stavanger',flag:'🇳🇴',country:'Noruega · Lysefijord',type:'port',hours:['14:00 llegada','22:00 salida'],tip:'Gamle Stavanger (casco antiguo de madera) es ideal con peques. Si alguien quiere el Preikestolen, puede ir por parejas turnándose.'},
+  {date:'2026-05-20',label:'Día 4',place:'Haugesund',flag:'🇳🇴',country:'Noruega',type:'port',hours:['07:00 llegada','18:00 salida'],tip:'Ciudad peatonal y tranquila, perfecta con carriola. Paseo por el fiordo y mercado local.'},
+  {date:'2026-05-21',label:'Día 5',place:'Kristiansand',flag:'🇳🇴',country:'Noruega',type:'port',hours:['09:00 llegada','18:00 salida'],tip:'¡El Zoo de Kristiansand es uno de los mejores de Escandinavia! Los peques lo van a flipar. Reserva online con antelación.'},
+  {date:'2026-05-22',label:'Día 6',place:'En Alta Mar',flag:'🌊',country:'Regreso · Mar del Norte',type:'sea',hours:['Todo el día navegando'],tip:'Último día a bordo. Aprovecha restaurantes y shows nocturnos. Prepara el equipaje por la noche.'},
+  {date:'2026-05-23',label:'Desembarque',place:'Southampton',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',country:'Reino Unido',type:'travel',hours:['07:00 desembarque','Bus → Heathrow','18:45 vuelo LHR→MAD'],tip:'Desembarque temprano. Hay tiempo holgado hasta el vuelo de tarde. Guarda libras para el bus de vuelta.'},
+];
+
+const PACKING=[
+  {cat:'👶 Bebés (esencial)',items:['Pañales (stock extra)','Toallitas húmedas','Crema de pañal','Leche / comida bebé','Portabebés x2','Chupetes repuesto','Juguetes favoritos','Medicación bebé','Cambiador portátil','Ropa abrigo peques x7','Pijamas peques']},
+  {cat:'🧳 Ropa adultos',items:['Ropa de abrigo (fiordos ~10°)','Impermeable / chubasquero x4','Calzado cómodo impermeable','Ropa elegante (cena barco)','Ropa interior x7','Pijamas']},
+  {cat:'📄 Documentos',items:['Pasaportes (6 personas)','Documentación MSC','Tarjetas embarque vuelo','Seguro de viaje','Números vuelo Iberia','Reserva National Express']},
+  {cat:'💊 Salud',items:['Botiquín básico','Antimareo (meclizina)','Crema solar','Medicación habitual','Termómetro']},
+  {cat:'📱 Tecnología',items:['Cargadores','Adaptador UK tipo G x2','Power bank','Auriculares','Cámara / GoPro']},
+];
+
+let packState={};
+
+/* ── INIT ───────────────────────────────────────────────── */
+function init(){
+  buildTimeline();
+  buildPacking();
+  updateToday();
+}
+if(sessionStorage.getItem(SESSION_KEY)==='1') init();
+
+/* ── TIMELINE ───────────────────────────────────────────── */
+function buildTimeline(){
+  const c=document.getElementById('tl-container');
+  const today=new Date();today.setHours(0,0,0,0);
+  ITINERARY.forEach((d,i)=>{
+    const dt=new Date(d.date);dt.setHours(0,0,0,0);
+    const isToday=dt.getTime()===today.getTime(),isPast=dt<today;
+    const tc=isToday?'today':isPast?'past':'future';
+    const badge=d.type==='sea'?'<span class="tl-badge sea-b">Alta mar</span>':d.type==='port'?'<span class="tl-badge port-b">Puerto</span>':'<span class="tl-badge travel-b">Viaje</span>';
+    const el=document.createElement('div');el.className='tl-item';
+    el.innerHTML=`<div class="tl-dot ${tc}"></div><div class="tl-card ${tc}">
+      <div class="tl-top"><div><div class="tl-date">${d.label} · ${new Date(d.date).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})}</div></div>
+      <div>${badge}${isToday?'<span class="tl-badge today-b" style="margin-left:4px">Hoy</span>':''}</div></div>
+      <div class="tl-place">${d.flag} ${d.place}</div>
+      <div class="tl-sub">${d.country}</div>
+      <div class="tl-pills">${d.hours.map(h=>`<span class="tl-pill">${h}</span>`).join('')}</div>
+      ${d.tip?`<div class="tl-tip">💡 ${d.tip}</div>`:''}</div>`;
+    c.appendChild(el);
+    setTimeout(()=>el.classList.add('visible'),i*80);
+  });
+}
+
+/* ── PACKING ────────────────────────────────────────────── */
+function buildPacking(){
+  const list=document.getElementById('pack-list');
+  PACKING.forEach(cat=>{
+    const sec=document.createElement('div');sec.className='pack-cat';
+    sec.innerHTML=`<div class="pack-cat-title">${cat.cat}</div>`;
+    cat.items.forEach(item=>{
+      const id=btoa(cat.cat+item);packState[id]=false;
+      const row=document.createElement('div');row.className='pack-item';
+      row.innerHTML=`<div class="pack-check"></div><div class="pack-name">${item}</div>`;
+      row.onclick=()=>{packState[id]=!packState[id];row.classList.toggle('checked',packState[id]);row.querySelector('.pack-check').textContent=packState[id]?'✓':'';updateProgress();};
+      sec.appendChild(row);
+    });
+    list.appendChild(sec);
+  });
+  updateProgress();
+}
+
+function updateProgress(){
+  const all=Object.keys(packState).length,done=Object.values(packState).filter(Boolean).length;
+  const pct=all?Math.round(done/all*100):0;
+  document.getElementById('pack-bar').style.width=pct+'%';
+  document.getElementById('pack-pct').textContent=pct+'%';
+}
+
+/* ── TODAY ──────────────────────────────────────────────── */
+function updateToday(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const start=new Date('2026-05-16');start.setHours(0,0,0,0);
+  const curr=ITINERARY.find(d=>{const dt=new Date(d.date);dt.setHours(0,0,0,0);return dt.getTime()===today.getTime()});
+  const main=document.getElementById('today-main'),sub=document.getElementById('today-sub2'),pills=document.getElementById('today-pills');
+  if(curr){
+    main.textContent=curr.flag+' '+curr.place;
+    sub.textContent=curr.country;
+    pills.innerHTML=curr.hours.map(h=>`<span class="tl-pill">${h}</span>`).join('');
+  } else if(today<start){
+    const diff=Math.round((start-today)/86400000);
+    main.textContent=diff===1?'¡Mañana salís! 🎉':'Faltan '+diff+' días';
+    sub.textContent='El crucero sale el 16 de mayo desde Southampton';
+    pills.innerHTML='';
+  } else {
+    main.textContent='Viaje completado 🏠';
+    sub.textContent='Esperamos que fuera increíble';
+    pills.innerHTML='';
+  }
+  const strip=document.getElementById('countdown-strip');
+  const diff2=Math.max(0,Math.floor((start-today)/86400000));
+  if(diff2>0){
+    const now=new Date();
+    strip.innerHTML=`<div class="cd-unit"><span class="cd-num" id="cd-d">${diff2}</span><span class="cd-label">Días</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><span class="cd-num" id="cd-h">${String(now.getHours()).padStart(2,'0')}</span><span class="cd-label">Horas</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><span class="cd-num" id="cd-m">${String(now.getMinutes()).padStart(2,'0')}</span><span class="cd-label">Min</span></div>`;
+    setInterval(()=>{
+      const n=new Date();
+      const dd=Math.max(0,Math.floor((start-n)/86400000));
+      const dEl=document.getElementById('cd-d'),hEl=document.getElementById('cd-h'),mEl=document.getElementById('cd-m');
+      if(dEl)dEl.textContent=dd;
+      if(hEl)hEl.textContent=String(n.getHours()).padStart(2,'0');
+      if(mEl)mEl.textContent=String(n.getMinutes()).padStart(2,'0');
+    },30000);
+  } else if(today>=start&&today<=new Date('2026-05-23')){
+    strip.innerHTML=`<div style="font-size:13px;color:var(--teal)">🚢 ¡Estáis de crucero!</div>`;
+  }
+}
+
+/* ── MAP TOOLTIP ────────────────────────────────────────── */
+function showTT(e,title,info){
+  const tt=document.getElementById('map-tt');
+  const svgRect=document.getElementById('map-svg').getBoundingClientRect();
+  document.getElementById('tt-title').textContent=title;
+  document.getElementById('tt-info').textContent=info;
+  const x=e.clientX-svgRect.left,y=e.clientY-svgRect.top;
+  tt.style.left=Math.min(x+12,svgRect.width-180)+'px';
+  tt.style.top=Math.max(y-40,8)+'px';
+  tt.classList.add('show');
+  setTimeout(()=>tt.classList.remove('show'),3000);
+}
+
+/* ── NAV ────────────────────────────────────────────────── */
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  ['hoy','mapa','ruta','cabina','pack'].forEach((t,i)=>{if(t===id)document.querySelectorAll('.nb')[i].classList.add('active');});
+}
+</script>
+</body>
+</html>
