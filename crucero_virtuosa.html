@@ -2,877 +2,1001 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>MSC Virtuosa · Fiordos 2026</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-/* ── SYSTEM FONT STACK (iOS SF Pro feel) ─────────────────── */
+/* ─── RESET & VARS ─────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  /* iOS Light palette */
-  --bg:#F2F2F7;
-  --bg2:#FFFFFF;
-  --bg3:#F2F2F7;
-  --grouped:#FFFFFF;
-  --label:#000000;
-  --label2:rgba(60,60,67,0.6);
-  --label3:rgba(60,60,67,0.3);
-  --sep:rgba(60,60,67,0.12);
-  --sep2:rgba(60,60,67,0.06);
-  --blue:#007AFF;
-  --blue2:#0A84FF;
-  --teal:#32ADE6;
-  --green:#34C759;
-  --orange:#FF9500;
-  --red:#FF3B30;
-  --purple:#AF52DE;
-  --indigo:#5856D6;
-  --fill:rgba(120,120,128,0.12);
-  --fill2:rgba(120,120,128,0.08);
-  --card-shadow:0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
-  --card-shadow-lg:0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  --bg:#0D0D1A;
+  --bg2:#161628;
+  --bg3:#1E1E35;
+  --card:#1A1A2E;
+  --card2:#222240;
+  --sep:rgba(255,255,255,0.08);
+  --sep2:rgba(255,255,255,0.04);
+  --blue:#3B82F6;
+  --blue2:#60A5FA;
+  --teal:#06B6D4;
+  --green:#10B981;
+  --orange:#F59E0B;
+  --red:#EF4444;
+  --purple:#8B5CF6;
+  --pink:#EC4899;
+  --gold:#FBBF24;
+  --label:#F8FAFC;
+  --label2:rgba(248,250,252,0.6);
+  --label3:rgba(248,250,252,0.35);
 }
-html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',sans-serif;color:var(--label);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;color:var(--label);overflow:hidden;-webkit-font-smoothing:antialiased}
 
-/* ── LOCK SCREEN ──────────────────────────────────────────── */
-#lock{
-  position:fixed;inset:0;z-index:999;
-  background:linear-gradient(175deg,#1C1C2E 0%,#1a1a2e 40%,#16213e 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:40px 32px;text-align:center;
-}
+/* ─── LOCK SCREEN ──────────────────────────────────────── */
+#lock{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 40% 20%,#1a1040 0%,#050510 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;overflow:hidden}
+.lock-bg-glow{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none}
+.glow1{width:300px;height:300px;background:rgba(59,130,246,0.15);top:-60px;left:-80px}
+.glow2{width:250px;height:250px;background:rgba(139,92,246,0.12);bottom:-40px;right:-60px}
 .lock-stars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .star{position:absolute;border-radius:50%;background:#fff}
-@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:.9}}
-
-@keyframes lockFadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.lock-ship-wrap{margin-bottom:12px;animation:lockFadeUp .7s ease both}
-.lock-ship-emoji{font-size:64px;display:block}
-@keyframes gentleRock{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(2deg) translateY(-4px)}}
-.lock-ship-emoji{animation:gentleRock 4s ease-in-out infinite}
-.lock-title{font-size:28px;font-weight:700;color:#fff;letter-spacing:-.5px;animation:lockFadeUp .7s .1s ease both;opacity:0}
-.lock-route{font-size:14px;color:rgba(255,255,255,0.5);margin-top:4px;letter-spacing:.5px;animation:lockFadeUp .7s .2s ease both;opacity:0}
-.lock-divider{width:40px;height:1px;background:rgba(255,255,255,0.15);margin:28px auto;animation:lockFadeUp .7s .3s ease both;opacity:0}
-.lock-form{width:100%;max-width:300px;animation:lockFadeUp .7s .4s ease both;opacity:0}
-.lock-field-wrap{position:relative;margin-bottom:12px}
-#pwd{
-  width:100%;height:50px;padding:0 48px 0 18px;
-  background:rgba(255,255,255,0.1);
-  border:1px solid rgba(255,255,255,0.15);
-  border-radius:14px;
-  color:#fff;font-size:16px;
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  letter-spacing:2px;outline:none;
-  transition:border-color .2s, background .2s;
-  -webkit-text-security:disc;
-}
-#pwd::placeholder{letter-spacing:0;color:rgba(255,255,255,0.35);font-size:15px}
-#pwd:focus{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.4)}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+@keyframes lockUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.la{animation:lockUp .7s ease both}
+.la2{animation-delay:.12s!important}
+.la3{animation-delay:.24s!important}
+.la4{animation-delay:.36s!important}
+.la5{animation-delay:.48s!important}
+.lock-ship{font-size:60px;display:block;margin-bottom:10px}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+.lock-ship{animation:float 4s ease-in-out infinite,lockUp .7s ease both}
+.lock-title{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.lock-sub{font-size:13px;color:rgba(255,255,255,.4);letter-spacing:.5px;margin-top:3px}
+.lock-divider{width:40px;height:1px;background:rgba(255,255,255,.1);margin:24px auto}
+.lock-form{width:100%;max-width:288px}
+.lock-input-wrap{position:relative;margin-bottom:10px}
+#pwd{width:100%;height:52px;padding:0 50px 0 18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;color:#fff;font-size:16px;font-family:inherit;outline:none;transition:border-color .2s,background .2s;letter-spacing:3px}
+#pwd::placeholder{letter-spacing:0;color:rgba(255,255,255,.3);font-size:15px}
+#pwd:focus{background:rgba(255,255,255,.1);border-color:rgba(59,130,246,.6)}
 #pwd.shake{animation:shake .35s ease}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}60%{transform:translateX(8px)}80%{transform:translateX(-4px)}}
-.eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:rgba(255,255,255,0.4);padding:4px}
-.lock-btn{
-  width:100%;height:50px;border-radius:14px;border:none;cursor:pointer;
-  background:linear-gradient(135deg,#007AFF,#0A84FF);
-  color:#fff;font-size:16px;font-weight:600;
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  transition:opacity .15s,transform .1s;
-  letter-spacing:-.2px;
-}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:rgba(255,255,255,.35);padding:4px}
+.lock-btn{width:100%;height:52px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;font-size:16px;font-weight:600;font-family:inherit;transition:opacity .15s,transform .1s;letter-spacing:-.2px}
 .lock-btn:active{opacity:.85;transform:scale(.98)}
-.lock-err{font-size:13px;color:#FF453A;margin-top:10px;min-height:18px;text-align:center}
-.lock-hint{font-size:12px;color:rgba(255,255,255,0.25);margin-top:20px}
+.lock-err{font-size:13px;color:var(--red);margin-top:9px;min-height:18px}
+.lock-hint{font-size:12px;color:rgba(255,255,255,.2);margin-top:18px}
 
-/* ── APP SHELL ────────────────────────────────────────────── */
-#app{display:none;height:100dvh;display:none;flex-direction:column;background:var(--bg)}
-#app.visible{display:flex}
+/* ─── APP SHELL ────────────────────────────────────────── */
+#app{display:none;height:100dvh;flex-direction:column;overflow:hidden}
+#app.on{display:flex}
 
-/* ── STATUS BAR AREA ─────────────────────────────────────── */
-.ios-header{
-  background:var(--bg2);
-  padding:16px 20px 0;
-  border-bottom:0.5px solid var(--sep);
-  position:sticky;top:0;z-index:100;
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  background:rgba(255,255,255,0.88);
-}
-.app-title-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px}
-.app-title{font-size:17px;font-weight:600;letter-spacing:-.3px}
-.app-sub{font-size:13px;color:var(--label2)}
-.crew-pill{display:inline-flex;align-items:center;gap:5px;background:var(--fill);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--label2)}
+/* ─── HEADER ───────────────────────────────────────────── */
+.hdr{padding:14px 18px 0;background:var(--bg);border-bottom:1px solid var(--sep);flex-shrink:0}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px}
+.hdr-title{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.hdr-sub{font-size:12px;color:var(--label3)}
+.crew-badge{background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(139,92,246,.2));border:1px solid rgba(139,92,246,.3);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--blue2)}
 
-/* ── TAB BAR (iOS style) ─────────────────────────────────── */
-.tab-bar{
-  display:flex;background:rgba(249,249,249,0.94);
-  border-top:0.5px solid var(--sep);
-  padding:8px 0 max(env(safe-area-inset-bottom,0px),8px);
-  position:sticky;bottom:0;z-index:100;
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;transition:opacity .15s}
+/* ─── TAB BAR ──────────────────────────────────────────── */
+.tabs{display:flex;background:var(--bg2);border-top:1px solid var(--sep);padding:6px 0 max(env(safe-area-inset-bottom,0px),6px);flex-shrink:0}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 2px;transition:opacity .15s;-webkit-tap-highlight-color:transparent}
 .tab:active{opacity:.6}
-.tab-icon{font-size:24px;line-height:1;transition:transform .2s}
-.tab.active .tab-icon{transform:scale(1.05)}
-.tab-label{font-size:10px;font-weight:500;color:var(--label3);letter-spacing:.2px;transition:color .2s}
-.tab.active .tab-label{color:var(--blue)}
+.tab-ico{font-size:22px;line-height:1;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.tab.on .tab-ico{transform:scale(1.15)}
+.tab-lbl{font-size:10px;font-weight:500;color:var(--label3);letter-spacing:.2px;transition:color .2s}
+.tab.on .tab-lbl{color:var(--blue2)}
 
-/* ── SCROLL CONTENT ──────────────────────────────────────── */
-.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.section{display:none;padding-bottom:20px}
-.section.active{display:block}
+/* ─── SCROLL AREA ──────────────────────────────────────── */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.sec{display:none;padding-bottom:24px;min-height:100%}
+.sec.on{display:block}
 
-/* ── iOS GROUPED LIST STYLE ──────────────────────────────── */
-.ios-section{padding:0 16px;margin-bottom:8px}
-.ios-section-label{font-size:13px;font-weight:400;color:var(--label2);text-transform:uppercase;letter-spacing:.5px;padding:16px 4px 6px;font-size:12px}
-.ios-card{background:var(--grouped);border-radius:12px;overflow:hidden}
-.ios-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid var(--sep2);min-height:50px}
-.ios-row:last-child{border-bottom:none}
-.row-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.row-body{flex:1;min-width:0}
-.row-title{font-size:15px;letter-spacing:-.2px}
-.row-sub{font-size:13px;color:var(--label2);margin-top:1px}
-.row-right{font-size:14px;color:var(--label2);text-align:right;flex-shrink:0}
-.row-right.blue{color:var(--blue)}
-.row-right.green{color:var(--green)}
-.chevron{color:var(--label3);font-size:13px;margin-left:4px}
+/* ─── SECTION LABELS ───────────────────────────────────── */
+.slabel{font-size:12px;font-weight:500;color:var(--label3);text-transform:uppercase;letter-spacing:.8px;padding:16px 18px 6px}
 
-/* ── HERO CARD ───────────────────────────────────────────── */
-.hero-card{
-  margin:16px;border-radius:20px;overflow:hidden;
-  background:linear-gradient(145deg,#1C3A5E 0%,#0F2540 50%,#0A1C30 100%);
-  box-shadow:var(--card-shadow-lg);position:relative;
-  min-height:160px;padding:20px;
-}
-.hero-card::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 20% 0%,rgba(0,122,255,0.25) 0%,transparent 60%),
-             radial-gradient(ellipse at 80% 100%,rgba(50,173,230,0.15) 0%,transparent 50%);
-}
-.hero-pretitle{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:6px;position:relative}
-.hero-title{font-size:28px;font-weight:700;color:#fff;letter-spacing:-.5px;line-height:1.1;position:relative}
-.hero-sub{font-size:14px;color:rgba(255,255,255,0.65);margin-top:6px;position:relative}
-.hero-pills{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;position:relative}
-.hero-pill{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);border-radius:20px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,0.85)}
-.hero-pill.blue{background:rgba(0,122,255,0.25);border-color:rgba(0,122,255,0.4);color:#6eb9ff}
-.hero-pill.green{background:rgba(52,199,89,0.2);border-color:rgba(52,199,89,0.4);color:#4cd964}
+/* ─── CARDS ────────────────────────────────────────────── */
+.card{background:var(--card);border-radius:16px;overflow:hidden;margin:0 16px 12px}
+.card-pad{padding:14px 16px}
+.card-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--sep2)}
+.card-row:last-child{border-bottom:none}
+.r-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.r-body{flex:1;min-width:0}
+.r-title{font-size:15px;letter-spacing:-.2px}
+.r-sub{font-size:12px;color:var(--label2);margin-top:1px}
+.r-right{font-size:13px;color:var(--label3);flex-shrink:0}
+.chevron{color:var(--label3);font-size:12px}
 
-/* ── COUNTDOWN ───────────────────────────────────────────── */
-.countdown-row{display:flex;justify-content:space-around;padding:16px 20px;background:var(--grouped);border-radius:12px}
+/* ─── HERO CARD ─────────────────────────────────────────── */
+.hero{margin:14px 16px;border-radius:20px;padding:20px;position:relative;overflow:hidden;min-height:150px}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 0%,rgba(59,130,246,.3) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(139,92,246,.2) 0%,transparent 50%)}
+.hero-pre{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:6px;position:relative}
+.hero-title{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.5px;line-height:1.15;position:relative}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.65);margin-top:5px;position:relative}
+.hero-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;position:relative}
+.h-pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500}
+.h-pill.blue{background:rgba(59,130,246,.25);color:#93C5FD;border:1px solid rgba(59,130,246,.3)}
+.h-pill.green{background:rgba(16,185,129,.2);color:#6EE7B7;border:1px solid rgba(16,185,129,.3)}
+.h-pill.orange{background:rgba(245,158,11,.2);color:#FCD34D;border:1px solid rgba(245,158,11,.3)}
+
+/* ─── COUNTDOWN ─────────────────────────────────────────── */
+.cd-wrap{display:flex;justify-content:space-around;align-items:center;padding:16px 20px;background:var(--card);border-radius:16px;margin:0 16px 12px}
 .cd-unit{text-align:center}
-.cd-num{font-size:32px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums;display:block;letter-spacing:-1px}
-.cd-sep{font-size:28px;color:var(--label3);padding-top:2px;font-weight:300}
-.cd-label{font-size:10px;color:var(--label2);text-transform:uppercase;letter-spacing:.8px;margin-top:2px;display:block}
+.cd-num{font-size:30px;font-weight:700;color:var(--blue2);font-variant-numeric:tabular-nums;display:block;letter-spacing:-1px;line-height:1}
+.cd-lbl{font-size:9px;color:var(--label3);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.cd-sep{font-size:26px;color:var(--sep);font-weight:300;padding-bottom:10px}
 
-/* ── STATS GRID ──────────────────────────────────────────── */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat-card{background:var(--grouped);border-radius:14px;padding:16px;box-shadow:var(--card-shadow)}
-.stat-val{font-size:28px;font-weight:700;letter-spacing:-.5px}
-.stat-label{font-size:12px;color:var(--label2);margin-top:2px;letter-spacing:-.1px}
-.stat-card.blue .stat-val{color:var(--blue)}
-.stat-card.green .stat-val{color:var(--green)}
-.stat-card.orange .stat-val{color:var(--orange)}
-.stat-card.teal .stat-val{color:var(--teal)}
+/* ─── STATS ─────────────────────────────────────────────── */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px 12px}
+.stat{border-radius:14px;padding:14px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;right:-10px;top:-10px;width:60px;height:60px;border-radius:50%;opacity:.15}
+.stat.blue{background:linear-gradient(135deg,rgba(59,130,246,.25),rgba(59,130,246,.1));border:1px solid rgba(59,130,246,.2)}
+.stat.blue::before{background:var(--blue)}
+.stat.green{background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(16,185,129,.08));border:1px solid rgba(16,185,129,.2)}
+.stat.orange{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.08));border:1px solid rgba(245,158,11,.2)}
+.stat.purple{background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(139,92,246,.08));border:1px solid rgba(139,92,246,.2)}
+.stat-val{font-size:26px;font-weight:700;letter-spacing:-.5px}
+.stat.blue .stat-val{color:var(--blue2)}
+.stat.green .stat-val{color:#6EE7B7}
+.stat.orange .stat-val{color:#FCD34D}
+.stat.purple .stat-val{color:#C4B5FD}
+.stat-lbl{font-size:12px;color:var(--label3);margin-top:2px}
 
-/* ── MAP ─────────────────────────────────────────────────── */
-.map-wrap{margin:0 16px 12px;border-radius:20px;overflow:hidden;box-shadow:var(--card-shadow-lg);position:relative;background:#C8E6F5}
-.map-svg-container{width:100%;position:relative}
-.map-legend-ios{padding:14px 16px;background:var(--grouped)}
-.map-legend-title{font-size:12px;color:var(--label2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-.map-legend-items{display:flex;flex-wrap:wrap;gap:8px}
-.map-leg{display:flex;align-items:center;gap:6px;background:var(--fill2);border-radius:20px;padding:5px 12px;font-size:13px;cursor:pointer;transition:background .15s}
-.map-leg:active{background:var(--fill)}
-.map-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* ─── MAP ───────────────────────────────────────────────── */
+#map{width:100%;height:420px;border-radius:0;z-index:1}
+.map-outer{margin:0 16px 12px;border-radius:18px;overflow:hidden;position:relative}
+/* Leaflet customization */
+.leaflet-control-zoom{border:none!important}
+.leaflet-control-zoom a{background:var(--card2)!important;color:var(--label)!important;border-color:var(--sep)!important;border-radius:8px!important}
+/* Custom popup */
+.lf-popup .leaflet-popup-content-wrapper{background:var(--card2);color:var(--label);border-radius:12px;border:1px solid var(--sep);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.lf-popup .leaflet-popup-tip{background:var(--card2)}
+.lf-popup .leaflet-popup-content{margin:10px 14px;font-family:-apple-system,sans-serif}
+.pop-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.pop-info{font-size:12px;color:var(--label2);line-height:1.5}
+/* Animated markers */
+@keyframes markerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.pulse-marker{animation:markerPulse 2s ease-in-out infinite}
 
-/* ── TIMELINE ────────────────────────────────────────────── */
-.tl-container{padding:0 16px}
-.tl-item{display:flex;gap:0;margin-bottom:0;position:relative}
-.tl-left{width:56px;display:flex;flex-direction:column;align-items:center;flex-shrink:0}
-.tl-line-seg{width:2px;background:var(--sep);flex:1;min-height:20px}
-.tl-line-seg.colored{background:var(--blue)}
-.tl-line-seg.top{min-height:16px}
-.tl-line-seg.bottom{min-height:16px}
-.tl-dot-wrap{position:relative;z-index:1}
-.tl-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--blue);background:var(--bg2);flex-shrink:0}
-.tl-dot.today{background:var(--blue);border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,122,255,0.2)}
-@keyframes pulseBlue{0%,100%{box-shadow:0 0 0 0 rgba(0,122,255,0.4)}50%{box-shadow:0 0 0 8px rgba(0,122,255,0)}}
-.tl-dot.today{animation:pulseBlue 2s ease infinite}
+/* Vehicle animations on map */
+#plane-marker,#bus-marker,#ship-marker{transition:left .05s linear,top .05s linear;pointer-events:none}
+
+/* ─── TIMELINE ──────────────────────────────────────────── */
+.tl-outer{padding:0 16px}
+.tl-item{display:flex;gap:0;margin-bottom:2px;opacity:0;transform:translateX(16px);transition:opacity .4s,transform .4s}
+.tl-item.vis{opacity:1;transform:translateX(0)}
+.tl-left{width:52px;display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.tl-top-line{width:2px;min-height:14px;flex:0 0 14px}
+.tl-bot-line{width:2px;flex:1;min-height:14px}
+.tl-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid var(--blue);background:var(--bg);transition:all .3s}
+.tl-dot.today{background:var(--blue);border-color:var(--blue)}
+@keyframes pBlue{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.5)}50%{box-shadow:0 0 0 8px rgba(59,130,246,0)}}
+.tl-dot.today{animation:pBlue 2s infinite}
 .tl-dot.past{background:var(--label3);border-color:var(--label3)}
-.tl-right{flex:1;padding:0 0 16px 12px}
-.tl-card-ios{
-  background:var(--grouped);border-radius:14px;overflow:hidden;
-  box-shadow:var(--card-shadow);
-  transition:transform .15s;
-}
-.tl-card-ios:active{transform:scale(.98)}
-.tl-card-ios.today{border:1.5px solid var(--blue)}
-.tl-card-header{padding:12px 14px 10px;border-bottom:0.5px solid var(--sep2)}
-.tl-card-meta{font-size:11px;color:var(--label2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
-.tl-badge-ios{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
-.tl-badge-ios.sea{background:rgba(50,173,230,0.12);color:var(--teal)}
-.tl-badge-ios.port{background:rgba(52,199,89,0.12);color:var(--green)}
-.tl-badge-ios.travel{background:rgba(255,149,0,0.12);color:var(--orange)}
-.tl-badge-ios.today{background:rgba(0,122,255,0.12);color:var(--blue)}
-.tl-place-name{font-size:17px;font-weight:600;letter-spacing:-.3px}
-.tl-card-body{padding:10px 14px}
-.tl-hours{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.tl-hour-chip{background:var(--fill2);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--label2)}
-.tl-tip-ios{font-size:13px;color:var(--label2);line-height:1.5}
+.tl-right{flex:1;padding:0 0 14px 10px}
+.tl-card{background:var(--card);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.tl-card:active{transform:scale(.98)}
+.tl-card.today{border:1.5px solid var(--blue)}
+.tl-card-h{padding:11px 14px 9px;border-bottom:1px solid var(--sep2)}
+.tl-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.tl-date-lbl{font-size:10px;color:var(--label3);text-transform:uppercase;letter-spacing:.5px}
+.tl-badges{display:flex;gap:4px}
+.badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px}
+.badge.sea{background:rgba(6,182,212,.15);color:var(--teal);border:1px solid rgba(6,182,212,.25)}
+.badge.port{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.badge.travel{background:rgba(245,158,11,.15);color:var(--orange);border:1px solid rgba(245,158,11,.25)}
+.badge.today{background:rgba(59,130,246,.2);color:var(--blue2);border:1px solid rgba(59,130,246,.3)}
+.tl-place{font-size:16px;font-weight:600;letter-spacing:-.2px}
+.tl-card-b{padding:10px 14px}
+.tl-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}
+.chip{background:var(--bg3);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--label2)}
+.tl-tip{font-size:12px;color:var(--label3);line-height:1.5}
+.tl-more{font-size:11px;color:var(--blue2);margin-top:6px;display:flex;align-items:center;gap:4px}
 
-/* ── CABIN ───────────────────────────────────────────────── */
-.cabin-hero{
-  margin:16px;border-radius:20px;overflow:hidden;
-  background:linear-gradient(145deg,#1C3A5E,#0A1C30);
-  padding:28px 24px;text-align:center;box-shadow:var(--card-shadow-lg);
-}
-.cabin-num{font-size:44px;font-weight:700;color:#fff;letter-spacing:-1px}
-.cabin-type{font-size:14px;color:rgba(255,255,255,.6);margin-top:6px;letter-spacing:.5px}
-.cabin-deck{font-size:13px;color:rgba(255,255,255,.4);margin-top:4px}
+/* ─── PORT DETAIL PAGE ──────────────────────────────────── */
+#port-page{position:fixed;inset:0;z-index:500;background:var(--bg);transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;-webkit-overflow-scrolling:touch}
+#port-page.open{transform:translateX(0)}
+.port-hero{height:220px;position:relative;overflow:hidden;flex-shrink:0}
+.port-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.1) 0%,rgba(0,0,0,.75) 100%)}
+.port-hero-content{position:absolute;bottom:0;left:0;right:0;padding:20px}
+.port-back{position:absolute;top:14px;left:14px;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:6px 14px;font-size:13px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit}
+.port-country-badge{display:inline-block;background:rgba(255,255,255,.15);border-radius:20px;padding:3px 10px;font-size:11px;color:rgba(255,255,255,.8);margin-bottom:6px}
+.port-hero-title{font-size:28px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.port-hero-sub{font-size:13px;color:rgba(255,255,255,.7);margin-top:3px}
+.port-body{padding:16px}
+.port-section-title{font-size:13px;font-weight:600;color:var(--label3);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 10px}
+.port-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.port-info-card{background:var(--card);border-radius:12px;padding:12px}
+.port-info-val{font-size:18px;font-weight:700}
+.port-info-lbl{font-size:11px;color:var(--label3);margin-top:2px}
+.port-attraction{background:var(--card);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:background .15s}
+.port-attraction:active{background:var(--card2)}
+.pa-ico{font-size:28px;flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:10px}
+.pa-body{flex:1}
+.pa-title{font-size:15px;font-weight:600;letter-spacing:-.2px}
+.pa-sub{font-size:12px;color:var(--label2);margin-top:3px;line-height:1.5}
+.pa-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.pa-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.pa-tag.must{background:rgba(239,68,68,.15);color:#FCA5A5;border:1px solid rgba(239,68,68,.2)}
+.pa-tag.baby{background:rgba(16,185,129,.12);color:#6EE7B7;border:1px solid rgba(16,185,129,.2)}
+.pa-tag.free{background:rgba(6,182,212,.12);color:#67E8F9;border:1px solid rgba(6,182,212,.2)}
+.pa-tag.paid{background:rgba(245,158,11,.12);color:#FCD34D;border:1px solid rgba(245,158,11,.2)}
+.pa-tag.walk{background:rgba(139,92,246,.12);color:#C4B5FD;border:1px solid rgba(139,92,246,.2)}
+.tip-box{background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;color:var(--label);margin-bottom:8px}
+.link-btn{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;text-decoration:none;color:var(--label);transition:background .15s}
+.link-btn:active{background:var(--card2)}
+.link-btn-left{display:flex;align-items:center;gap:10px}
+.link-btn-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.link-btn-title{font-size:14px;font-weight:500}
+.link-btn-sub{font-size:12px;color:var(--label3);margin-top:1px}
 
-/* ── PACKING ─────────────────────────────────────────────── */
-.pack-progress-ios{margin:16px;background:var(--grouped);border-radius:14px;padding:16px;box-shadow:var(--card-shadow)}
-.pack-progress-label{display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px}
-.pack-progress-label span:last-child{color:var(--blue);font-weight:600}
-.ios-progress{height:6px;background:var(--fill);border-radius:3px;overflow:hidden}
-.ios-progress-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:3px;transition:width .4s ease;width:0%}
-.pack-item-ios{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid var(--sep2);cursor:pointer;transition:background .15s}
-.pack-item-ios:last-child{border-bottom:none}
-.pack-item-ios:active{background:var(--fill2)}
-.pack-check-ios{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--sep);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:13px}
-.pack-item-ios.checked .pack-check-ios{background:var(--blue);border-color:var(--blue);color:#fff}
-.pack-item-ios.checked .pack-name-ios{text-decoration:line-through;color:var(--label3)}
-.pack-name-ios{font-size:15px;flex:1}
+/* ─── PACKING ───────────────────────────────────────────── */
+.pack-hero{margin:14px 16px;border-radius:16px;padding:16px;background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(6,182,212,.15));border:1px solid rgba(16,185,129,.25)}
+.pack-prog-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.pack-prog-bar{flex:1;height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden}
+.pack-prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--teal));border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%}
+.pack-pct{font-size:14px;font-weight:700;color:var(--green);min-width:38px;text-align:right}
+.pack-motivation{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px}
+.pack-cat-toggle{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--sep2)}
+.pack-cat-toggle:last-child{border-bottom:none}
+.pack-cat-left{display:flex;align-items:center;gap:10px}
+.pack-cat-ico{font-size:22px}
+.pack-cat-title{font-size:15px;font-weight:600}
+.pack-cat-count{font-size:12px;color:var(--label3);margin-top:1px}
+.pack-cat-arrow{font-size:12px;color:var(--label3);transition:transform .25s}
+.pack-cat-arrow.open{transform:rotate(90deg)}
+.pack-items-list{overflow:hidden;transition:max-height .3s ease}
+.pack-item{display:flex;align-items:center;gap:12px;padding:12px 16px 12px 52px;border-bottom:1px solid var(--sep2);cursor:pointer;transition:background .15s}
+.pack-item:last-child{border-bottom:none}
+.pack-item:active{background:rgba(255,255,255,.03)}
+.pack-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--sep);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s;font-size:13px}
+.pack-item.done .pack-check{background:var(--green);border-color:var(--green);color:#fff}
+.pack-item.done .pack-name{text-decoration:line-through;color:var(--label3)}
+.pack-name{font-size:14px;flex:1}
+.pack-priority{font-size:10px;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.pack-priority.high{background:rgba(239,68,68,.15);color:#FCA5A5;border:1px solid rgba(239,68,68,.2)}
+.pack-priority.med{background:rgba(245,158,11,.12);color:#FCD34D;border:1px solid rgba(245,158,11,.2)}
 
-/* ── NOTE BOX ────────────────────────────────────────────── */
-.note-ios{margin:0 16px;background:rgba(255,149,0,0.08);border:1px solid rgba(255,149,0,0.2);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--label);line-height:1.5}
-.note-ios strong{color:var(--orange)}
+/* ─── ETA / UK INFO CARD ────────────────────────────────── */
+.uk-info-card{margin:0 16px 12px;background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(139,92,246,.12));border:1px solid rgba(59,130,246,.25);border-radius:16px;padding:16px}
+.uk-flag{font-size:28px;margin-bottom:8px}
+.uk-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.uk-desc{font-size:13px;color:var(--label2);line-height:1.6;margin-bottom:12px}
+.uk-links{display:flex;flex-direction:column;gap:6px}
+.uk-link{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;cursor:pointer;text-decoration:none;color:var(--label);transition:background .15s}
+.uk-link:active{background:rgba(255,255,255,.1)}
+.uk-link-ico{font-size:18px;width:28px;text-align:center}
+.uk-link-body{flex:1}
+.uk-link-title{font-size:13px;font-weight:600}
+.uk-link-sub{font-size:11px;color:var(--label3);margin-top:1px}
+.uk-link-arr{color:var(--label3);font-size:13px}
 
-/* ── WEATHER CARD ────────────────────────────────────────── */
-.weather-card{background:var(--grouped);border-radius:12px;overflow:hidden}
-.weather-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid var(--sep2)}
-.weather-row:last-child{border-bottom:none}
-.weather-emoji{font-size:28px;width:40px;text-align:center}
-.weather-body{flex:1}.weather-place{font-size:15px;letter-spacing:-.2px}.weather-desc{font-size:13px;color:var(--label2);margin-top:1px}
-.weather-temp{font-size:20px;font-weight:600;color:var(--teal);letter-spacing:-.5px}
+/* ─── WEATHER ───────────────────────────────────────────── */
+.wx-card{background:var(--card);border-radius:14px;overflow:hidden;margin:0 16px 12px}
+.wx-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--sep2)}
+.wx-row:last-child{border-bottom:none}
+.wx-ico{font-size:28px;width:38px;text-align:center;flex-shrink:0}
+.wx-body{flex:1}.wx-place{font-size:14px;font-weight:500}.wx-desc{font-size:12px;color:var(--label3);margin-top:1px}
+.wx-temp{font-size:20px;font-weight:700;color:var(--teal)}
 
-/* ── FADE IN ANIMATION ───────────────────────────────────── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.fadein{animation:fadeUp .4s ease both}
+/* ─── NOTE BOX ──────────────────────────────────────────── */
+.note{margin:0 16px 12px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;color:var(--label)}
+.note strong{color:var(--orange)}
+
+/* ─── FADE IN ───────────────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .4s ease both}
+.fu2{animation-delay:.08s!important}
+.fu3{animation-delay:.16s!important}
+.fu4{animation-delay:.24s!important}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════ LOCK ════════════════════════════ -->
+<!-- ══════ LOCK ══════════════════════════════════════════════ -->
 <div id="lock">
+  <div class="lock-bg-glow glow1"></div>
+  <div class="lock-bg-glow glow2"></div>
   <div class="lock-stars" id="stars"></div>
-  <div class="lock-ship-wrap"><span class="lock-ship-emoji">🚢</span></div>
-  <div class="lock-title">MSC Virtuosa</div>
-  <div class="lock-route">Fiordos Noruegos · Mayo 2026</div>
-  <div class="lock-divider"></div>
-  <div class="lock-form">
-    <div class="lock-field-wrap">
-      <input id="pwd" type="password" placeholder="Contraseña" autocomplete="off" spellcheck="false"
-             onkeydown="if(event.key==='Enter')doUnlock()">
-      <button class="eye" onclick="toggleEye()">👁</button>
+  <span class="lock-ship la">🚢</span>
+  <div class="lock-title la la2">MSC Virtuosa</div>
+  <div class="lock-sub la la3">Fiordos Noruegos · Mayo 2026</div>
+  <div class="lock-divider la la4"></div>
+  <div class="lock-form la la5">
+    <div class="lock-input-wrap">
+      <input id="pwd" type="password" placeholder="Contraseña" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')doUnlock()">
+      <button class="eye-btn" onclick="toggleEye()">👁</button>
     </div>
-    <button class="lock-btn" onclick="doUnlock()">Entrar</button>
-    <div class="lock-err" id="lock-err"></div>
-    <div class="lock-hint">Solo para el grupo viajero</div>
+    <button class="lock-btn" onclick="doUnlock()">Entrar al viaje</button>
+    <div class="lock-err" id="lerr"></div>
+    <div class="lock-hint">Solo para el grupo viajero 🔒</div>
   </div>
 </div>
 
-<!-- ═══════════════════════ APP ═════════════════════════════ -->
+<!-- ══════ APP ═══════════════════════════════════════════════ -->
 <div id="app">
-
-  <div class="ios-header">
-    <div class="app-title-row">
+  <div class="hdr">
+    <div class="hdr-top">
       <div>
-        <div class="app-title">MSC Virtuosa 🚢</div>
-        <div class="app-sub">Fiordos Noruegos · Mayo 2026</div>
+        <div class="hdr-title">🚢 MSC Virtuosa · Fiordos</div>
+        <div class="hdr-sub">Norwegian Fjords · 16–23 Mayo 2026</div>
       </div>
-      <div class="crew-pill">👨‍👩‍👧 4+2</div>
+      <div class="crew-badge">👨‍👩‍👧 4+2</div>
     </div>
   </div>
 
-  <div class="content">
+  <div class="scroll" id="scroll-area">
 
-    <!-- ── HOY ─────────────────────────────────────────────── -->
-    <div id="sec-hoy" class="section active">
-
-      <div class="hero-card fadein">
-        <div class="hero-pretitle">Estado del viaje</div>
-        <div class="hero-title" id="hero-title">Cargando...</div>
-        <div class="hero-sub" id="hero-sub"></div>
-        <div class="hero-pills" id="hero-pills"></div>
+    <!-- HOY -->
+    <div id="sec-hoy" class="sec on">
+      <div class="hero fu" style="background:linear-gradient(145deg,#1e3a5f,#0f2040)">
+        <div class="hero-pre">Estado del viaje</div>
+        <div class="hero-title" id="h-title">Cargando...</div>
+        <div class="hero-sub" id="h-sub"></div>
+        <div class="hero-pills" id="h-pills"></div>
       </div>
 
-      <div class="ios-section">
-        <div class="ios-section-label">Cuenta atrás</div>
-        <div class="countdown-row ios-card" id="countdown-row">
-          <div class="cd-unit"><span class="cd-num" id="cd-d">–</span><span class="cd-label">Días</span></div>
-          <div class="cd-sep">:</div>
-          <div class="cd-unit"><span class="cd-num" id="cd-h">–</span><span class="cd-label">Horas</span></div>
-          <div class="cd-sep">:</div>
-          <div class="cd-unit"><span class="cd-num" id="cd-m">–</span><span class="cd-label">Min</span></div>
-          <div class="cd-sep">:</div>
-          <div class="cd-unit"><span class="cd-num" id="cd-s">–</span><span class="cd-label">Seg</span></div>
+      <div class="slabel fu fu2">Cuenta atrás al embarque</div>
+      <div class="cd-wrap fu fu2" id="cd-wrap">
+        <div class="cd-unit"><span class="cd-num" id="cd-d">–</span><span class="cd-lbl">Días</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" id="cd-h">–</span><span class="cd-lbl">Horas</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" id="cd-m">–</span><span class="cd-lbl">Min</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" id="cd-s">–</span><span class="cd-lbl">Seg</span></div>
+      </div>
+
+      <div class="slabel">Resumen del viaje</div>
+      <div class="stats fu fu3">
+        <div class="stat blue"><div class="stat-val">8</div><div class="stat-lbl">Días totales</div></div>
+        <div class="stat green"><div class="stat-val">4</div><div class="stat-lbl">Puertos</div></div>
+        <div class="stat orange"><div class="stat-val">8039</div><div class="stat-lbl">Camarote</div></div>
+        <div class="stat purple"><div class="stat-val">C.8</div><div class="stat-lbl">Cubierta 8</div></div>
+      </div>
+
+      <div class="slabel fu fu3">⚠️ Entrada Reino Unido — ETA</div>
+      <div class="uk-info-card fu fu3">
+        <div class="uk-flag">🇬🇧</div>
+        <div class="uk-title">Se requiere ETA para entrar al Reino Unido</div>
+        <div class="uk-desc">Desde 2024, los ciudadanos de la UE necesitan una Electronic Travel Authorisation (ETA) para entrar al Reino Unido. Cuesta £10 por persona y se solicita online. ¡Hazlo con semanas de antelación para los 6!</div>
+        <div class="uk-links">
+          <a class="uk-link" href="https://www.gov.uk/guidance/apply-for-an-electronic-travel-authorisation-eta" target="_blank">
+            <div class="uk-link-ico">🌐</div>
+            <div class="uk-link-body"><div class="uk-link-title">Solicitar ETA oficial (GOV.UK)</div><div class="uk-link-sub">gov.uk · £10 por persona · Instantáneo</div></div>
+            <div class="uk-link-arr">›</div>
+          </a>
+          <a class="uk-link" href="https://www.gov.uk/guidance/apply-for-a-uk-electronic-travel-authorisation-eta" target="_blank">
+            <div class="uk-link-ico">📱</div>
+            <div class="uk-link-body"><div class="uk-link-title">App UK ETA (iOS / Android)</div><div class="uk-link-sub">Descarga la app oficial para solicitarla</div></div>
+            <div class="uk-link-arr">›</div>
+          </a>
         </div>
       </div>
 
-      <div class="ios-section">
-        <div class="ios-section-label">Resumen</div>
-        <div class="stats-grid">
-          <div class="stat-card blue"><div class="stat-val">8</div><div class="stat-label">Días de viaje</div></div>
-          <div class="stat-card green"><div class="stat-val">4</div><div class="stat-label">Puertos escala</div></div>
-          <div class="stat-card orange"><div class="stat-val">8039</div><div class="stat-label">Camarote</div></div>
-          <div class="stat-card teal"><div class="stat-val">Cubierta 8</div><div class="stat-label">Balcón Deluxe</div></div>
-        </div>
+      <div class="slabel">Clima esperado</div>
+      <div class="wx-card fu fu4">
+        <div class="wx-row"><div class="wx-ico">☀️</div><div class="wx-body"><div class="wx-place">Madrid · Salida</div><div class="wx-desc">Calor, llevar ropa de verano para el aeropuerto</div></div><div class="wx-temp">20–26°</div></div>
+        <div class="wx-row"><div class="wx-ico">🌦</div><div class="wx-body"><div class="wx-place">Southampton · Edimburgo</div><div class="wx-desc">Nublado con claros, posible lluvia</div></div><div class="wx-temp">10–16°</div></div>
+        <div class="wx-row"><div class="wx-ico">⛅</div><div class="wx-body"><div class="wx-place">Fiordos Noruegos</div><div class="wx-desc">Variable · Mucho viento en cubierta</div></div><div class="wx-temp">8–14°</div></div>
       </div>
 
-      <div class="ios-section">
-        <div class="ios-section-label">Clima esperado</div>
-        <div class="weather-card ios-card">
-          <div class="weather-row"><div class="weather-emoji">⛅</div><div class="weather-body"><div class="weather-place">Fiordos Noruegos</div><div class="weather-desc">Variable, algo de lluvia · lleva capas</div></div><div class="weather-temp">8–14°</div></div>
-          <div class="weather-row"><div class="weather-emoji">🌦</div><div class="weather-body"><div class="weather-place">Edimburgo · Southampton</div><div class="weather-desc">Nublado con claros</div></div><div class="weather-temp">10–16°</div></div>
-          <div class="weather-row"><div class="weather-emoji">☀️</div><div class="weather-body"><div class="weather-place">Madrid</div><div class="weather-desc">Calor antes de partir</div></div><div class="weather-temp">20–26°</div></div>
-        </div>
-      </div>
-
-      <div class="note-ios">
-        👶 <strong>Tip para los peques:</strong> Lleva portabebés además del carrito. En Edimburgo los adoquines y los muelles noruegos hacen difícil la carriola. El MSC Virtuosa tiene guardería a bordo — pregunta al embarcar.
-      </div>
-      <div style="height:20px"></div>
+      <div class="note">👶 <strong>Con los peques:</strong> Lleva portabebés además del carrito — los adoquines de Edimburgo y los muelles noruegos complican la carriola. El MSC Virtuosa tiene Mini Club (guardería) a bordo para +3 años; para los peques de 1,5 años pregunta al embarcar por el Baby Care.</div>
     </div>
 
-    <!-- ── MAPA ─────────────────────────────────────────────── -->
-    <div id="sec-mapa" class="section">
-      <div class="map-wrap">
-        <div class="map-svg-container">
-          <svg id="the-map" viewBox="0 0 500 560" width="100%" style="display:block">
-            <defs>
-              <!-- Ocean gradient -->
-              <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#5BA4CF"/>
-                <stop offset="60%" stop-color="#4A90C4"/>
-                <stop offset="100%" stop-color="#3A7AB4"/>
-              </linearGradient>
-              <!-- Land gradient -->
-              <linearGradient id="land" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#A8C88A"/>
-                <stop offset="100%" stop-color="#8CB870"/>
-              </linearGradient>
-              <linearGradient id="land2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#9EBF82"/>
-                <stop offset="100%" stop-color="#84AE68"/>
-              </linearGradient>
-              <linearGradient id="norway-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#B8D4A0"/>
-                <stop offset="100%" stop-color="#98C080"/>
-              </linearGradient>
-              <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.15)"/>
-              </filter>
-              <!-- Plane path -->
-              <path id="plane-path" d="M 138 478 C 138 430 150 370 210 300 C 260 240 310 190 340 140" fill="none"/>
-              <!-- Bus path (short, from airport to port) -->
-              <path id="bus-path" d="M 148 475 C 148 470 142 466 138 462" fill="none"/>
-              <!-- Ship route -->
-              <path id="ship-route" d="M 138 460 C 148 420 162 370 168 310 C 172 270 200 240 240 210 C 268 188 310 175 330 155 C 340 148 348 142 340 140" fill="none"/>
-              <!-- Return route -->
-              <path id="return-route" d="M 340 140 C 348 155 350 170 344 190 C 336 215 314 230 286 248 C 260 265 238 290 218 320 C 200 346 180 390 162 430 C 152 452 144 460 138 460" fill="none"/>
-            </defs>
-
-            <!-- OCEAN -->
-            <rect width="500" height="560" fill="url(#ocean)"/>
-
-            <!-- Ocean texture dots -->
-            <g opacity="0.08">
-              <circle cx="80" cy="350" r="60" fill="#fff"/>
-              <circle cx="400" cy="200" r="80" fill="#fff"/>
-              <circle cx="200" cy="500" r="50" fill="#fff"/>
-            </g>
-
-            <!-- ── SPAIN ──────────────────────────────────────────── -->
-            <g filter="url(#shadow)">
-              <path d="M 40 530 L 45 510 L 50 495 L 58 485 L 70 480 L 82 482 L 90 490 L 100 492 L 112 488 L 120 480 L 128 475 L 136 475 L 144 478 L 150 484 L 158 488 L 168 490 L 175 485 L 180 478 L 188 475 L 196 478 L 200 485 L 198 495 L 190 505 L 184 515 L 188 525 L 192 535 L 185 545 L 170 550 L 150 555 L 128 558 L 105 556 L 85 548 L 65 540 L 50 535 Z" fill="url(#land)" stroke="#7aaa5a" stroke-width="0.5"/>
-              <!-- Pyrenees hint -->
-              <path d="M 136 475 L 144 470 L 152 468 L 160 470 L 168 474 L 175 478 L 180 478" fill="none" stroke="#6a9a4a" stroke-width="1.5" opacity="0.6"/>
-              <!-- Spain label -->
-              <text x="118" y="520" font-size="11" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="middle" opacity="0.9">ESPAÑA</text>
-              <!-- Madrid dot -->
-              <circle cx="118" cy="492" r="3" fill="#e74c3c" opacity="0.8"/>
-              <text x="126" y="496" font-size="8" fill="#555" font-family="-apple-system,sans-serif">Madrid</text>
-            </g>
-
-            <!-- ── FRANCE ──────────────────────────────────────────── -->
-            <g filter="url(#shadow)">
-              <path d="M 168 474 L 175 465 L 185 458 L 196 455 L 206 458 L 215 465 L 218 475 L 214 485 L 205 490 L 196 490 L 186 487 L 178 482 Z" fill="url(#land2)" stroke="#7aaa5a" stroke-width="0.5"/>
-              <text x="195" y="475" font-size="8" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="middle" opacity="0.8">FR</text>
-            </g>
-
-            <!-- ── UK + IRELAND ───────────────────────────────────── -->
-            <g filter="url(#shadow)">
-              <!-- England / Wales / Scotland -->
-              <path d="M 88 462 L 90 448 L 96 435 L 100 420 L 96 405 L 100 390 L 108 378 L 115 368 L 118 355 L 122 342 L 128 332 L 136 325 L 144 322 L 150 328 L 154 340 L 152 355 L 156 368 L 162 378 L 165 392 L 162 408 L 158 420 L 160 432 L 162 444 L 158 455 L 150 462 L 140 466 L 128 467 L 115 465 L 100 464 Z" fill="url(#land2)" stroke="#7aaa5a" stroke-width="0.5"/>
-              <!-- Scotland highlands -->
-              <path d="M 128 332 L 132 320 L 136 308 L 140 298 L 136 288 L 130 282 L 122 284 L 116 292 L 114 304 L 116 316 L 122 324 L 128 330 Z" fill="#a8c88a" stroke="#7aaa5a" stroke-width="0.5"/>
-              <!-- Ireland -->
-              <path d="M 72 415 L 76 404 L 84 396 L 92 394 L 96 402 L 94 414 L 88 422 L 78 424 L 72 418 Z" fill="url(#land2)" stroke="#7aaa5a" stroke-width="0.5"/>
-              <text x="128" y="420" font-size="9" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="middle" opacity="0.9">UK</text>
-              <text x="116" y="302" font-size="8" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="middle" opacity="0.8">SCO</text>
-            </g>
-
-            <!-- ── DENMARK ─────────────────────────────────────────── -->
-            <g>
-              <path d="M 252 310 L 256 300 L 260 292 L 264 300 L 264 310 L 260 315 L 254 314 Z" fill="url(#land2)" stroke="#7aaa5a" stroke-width="0.5"/>
-            </g>
-
-            <!-- ── NORWAY ──────────────────────────────────────────── -->
-            <g filter="url(#shadow)">
-              <path d="M 290 140 L 296 128 L 304 118 L 314 108 L 324 102 L 332 98 L 340 100 L 346 108 L 344 120 L 338 130 L 332 140 L 328 152 L 324 164 L 320 178 L 315 192 L 308 205 L 300 218 L 290 228 L 280 235 L 270 240 L 260 244 L 252 248 L 248 254 L 250 262 L 256 268 L 260 278 L 258 288 L 252 296 L 244 300 L 238 296 L 236 286 L 240 276 L 244 266 L 244 256 L 240 248 L 234 242 L 230 234 L 232 224 L 238 216 L 246 208 L 254 200 L 262 192 L 268 182 L 272 170 L 276 158 L 282 148 Z" fill="url(#norway-grad)" stroke="#7aaa5a" stroke-width="0.5"/>
-              <!-- Fjord indentations -->
-              <path d="M 252 248 C 248 252 244 258 240 262 C 238 268 240 274 244 278" fill="none" stroke="#5BA4CF" stroke-width="2" opacity="0.6"/>
-              <path d="M 270 240 C 265 246 260 252 258 260" fill="none" stroke="#5BA4CF" stroke-width="1.5" opacity="0.5"/>
-              <path d="M 290 228 C 284 236 278 244 276 252" fill="none" stroke="#5BA4CF" stroke-width="1.5" opacity="0.5"/>
-              <text x="305" y="175" font-size="10" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="middle" opacity="0.9">NORUEGA</text>
-            </g>
-
-            <!-- ── SWEDEN hint ─────────────────────────────────────── -->
-            <g>
-              <path d="M 340 100 L 350 110 L 360 125 L 366 145 L 365 165 L 360 185 L 354 205 L 348 220 L 342 235 L 338 250 L 338 264 L 340 278 L 344 290 L 342 302 L 336 310 L 328 314 L 320 312 L 314 306 L 308 298 L 304 288 L 302 276 L 302 264 L 300 252 L 296 240 L 294 228 L 296 218 L 302 208 L 308 198 L 314 188 L 318 176 L 322 162 L 326 148 L 330 136 L 334 124 L 338 112 L 340 102Z" fill="#c8ddb0" stroke="#8ab870" stroke-width="0.5" opacity="0.7"/>
-              <text x="330" y="220" font-size="8" fill="#3d6b25" font-family="-apple-system,sans-serif" font-weight="500" opacity="0.7" text-anchor="middle">SWE</text>
-            </g>
-
-            <!-- ── ROUTE PATHS ─────────────────────────────────────── -->
-            <!-- Plane route (dashed, Madrid to Southampton) -->
-            <path d="M 118 492 C 120 460 130 445 138 462" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6"/>
-            <!-- Ship route outbound -->
-            <path d="M 138 460 C 140 440 148 415 152 390 C 156 365 158 345 152 330 C 148 320 140 314 136 308" fill="none" stroke="#007AFF" stroke-width="2" stroke-dasharray="6,3" opacity="0.7"/>
-            <!-- UK to Norway segment -->
-            <path d="M 136 308 C 150 290 172 270 200 250 C 222 234 248 218 270 198 C 295 176 316 158 330 142" fill="none" stroke="#007AFF" stroke-width="2" stroke-dasharray="6,3" opacity="0.7"/>
-            <!-- Return route (gold) -->
-            <path d="M 330 142 C 318 160 300 178 280 200 C 258 224 240 248 222 274 C 206 296 190 330 168 370 C 156 398 146 432 138 460" fill="none" stroke="#FF9500" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
-
-            <!-- ── PORT MARKERS ────────────────────────────────────── -->
-            <!-- Southampton -->
-            <g id="pm-soton" style="cursor:pointer" onclick="mapTip('Southampton 🏴󠁧󠁢󠁥󠁮󠁧󠁿','Puerto base · Embarque 16/05 · Desembarque 23/05',138,460)">
-              <circle cx="138" cy="460" r="12" fill="rgba(0,122,255,0.15)" stroke="#007AFF" stroke-width="0.5"/>
-              <circle cx="138" cy="460" r="6" fill="#007AFF"/>
-              <circle cx="138" cy="460" r="6" fill="none" stroke="#007AFF" stroke-width="1.5" opacity="0.5">
-                <animate attributeName="r" values="6;16;6" dur="2.5s" repeatCount="indefinite"/>
-                <animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite"/>
-              </circle>
-              <text x="152" y="455" font-size="9" fill="#007AFF" font-family="-apple-system,sans-serif" font-weight="600">Southampton</text>
-              <text x="152" y="466" font-size="8" fill="rgba(0,0,0,0.45)" font-family="-apple-system,sans-serif">16 &amp; 23 Mayo</text>
-            </g>
-
-            <!-- S. Queensferry -->
-            <g id="pm-sq" style="cursor:pointer" onclick="mapTip('South Queensferry 🏴󠁧󠁢󠁳󠁣󠁴󠁿','18 Mayo · 08:00–18:00 · Anclado · Puerta de Edimburgo',136,308)">
-              <circle cx="136" cy="308" r="10" fill="rgba(52,199,89,0.15)" stroke="#34C759" stroke-width="0.5"/>
-              <circle cx="136" cy="308" r="5" fill="#34C759"/>
-              <circle cx="136" cy="308" r="5" fill="none" stroke="#34C759" stroke-width="1.5" opacity="0.5">
-                <animate attributeName="r" values="5;14;5" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
-                <animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
-              </circle>
-              <text x="150" y="304" font-size="9" fill="#34C759" font-family="-apple-system,sans-serif" font-weight="600">S. Queensferry</text>
-              <text x="150" y="315" font-size="8" fill="rgba(0,0,0,0.45)" font-family="-apple-system,sans-serif">18 Mayo</text>
-            </g>
-
-            <!-- Stavanger -->
-            <g id="pm-stav" style="cursor:pointer" onclick="mapTip('Stavanger 🇳🇴','19 Mayo · 14:00–22:00 · Lysefijord',244,228)">
-              <circle cx="244" cy="228" r="10" fill="rgba(255,149,0,0.15)" stroke="#FF9500" stroke-width="0.5"/>
-              <circle cx="244" cy="228" r="5" fill="#FF9500"/>
-              <circle cx="244" cy="228" r="5" fill="none" stroke="#FF9500" stroke-width="1.5" opacity="0.5">
-                <animate attributeName="r" values="5;14;5" dur="2.5s" repeatCount="indefinite" begin="1s"/>
-                <animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite" begin="1s"/>
-              </circle>
-              <text x="228" y="224" font-size="9" fill="#FF9500" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="end">Stavanger</text>
-              <text x="228" y="235" font-size="8" fill="rgba(0,0,0,0.45)" font-family="-apple-system,sans-serif" text-anchor="end">19 Mayo</text>
-            </g>
-
-            <!-- Haugesund -->
-            <g id="pm-hau" style="cursor:pointer" onclick="mapTip('Haugesund 🇳🇴','20 Mayo · 07:00–18:00',262,192)">
-              <circle cx="262" cy="192" r="10" fill="rgba(255,149,0,0.15)" stroke="#FF9500" stroke-width="0.5"/>
-              <circle cx="262" cy="192" r="5" fill="#FF9500" opacity="0.8"/>
-              <circle cx="262" cy="192" r="5" fill="none" stroke="#FF9500" stroke-width="1.5" opacity="0.4">
-                <animate attributeName="r" values="5;13;5" dur="2.5s" repeatCount="indefinite" begin="1.5s"/>
-                <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite" begin="1.5s"/>
-              </circle>
-              <text x="246" y="188" font-size="9" fill="#FF9500" font-family="-apple-system,sans-serif" font-weight="600" text-anchor="end">Haugesund</text>
-              <text x="246" y="199" font-size="8" fill="rgba(0,0,0,0.45)" font-family="-apple-system,sans-serif" text-anchor="end">20 Mayo</text>
-            </g>
-
-            <!-- Kristiansand -->
-            <g id="pm-krs" style="cursor:pointer" onclick="mapTip('Kristiansand 🇳🇴','21 Mayo · 09:00–18:00 · 🦁 Zoo Kristiansand',286,248)">
-              <circle cx="286" cy="248" r="10" fill="rgba(52,199,89,0.15)" stroke="#34C759" stroke-width="0.5"/>
-              <circle cx="286" cy="248" r="5" fill="#34C759" opacity="0.9"/>
-              <circle cx="286" cy="248" r="5" fill="none" stroke="#34C759" stroke-width="1.5" opacity="0.4">
-                <animate attributeName="r" values="5;14;5" dur="2.5s" repeatCount="indefinite" begin="2s"/>
-                <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite" begin="2s"/>
-              </circle>
-              <text x="300" y="244" font-size="9" fill="#34C759" font-family="-apple-system,sans-serif" font-weight="600">Kristiansand</text>
-              <text x="300" y="255" font-size="8" fill="rgba(0,0,0,0.45)" font-family="-apple-system,sans-serif">21 Mayo</text>
-            </g>
-
-            <!-- Madrid dot (already drawn above) -->
-
-            <!-- ── ANIMATED VEHICLES ───────────────────────────────── -->
-            <!-- PLANE (Madrid → Southampton) -->
-            <g id="anim-plane">
-              <text id="plane-emoji" font-size="18" text-anchor="middle" dominant-baseline="middle">✈️</text>
-              <animateMotion dur="8s" repeatCount="indefinite" begin="0s">
-                <mpath href="#plane-path"/>
-              </animateMotion>
-            </g>
-
-            <!-- BUS (Heathrow area → Southampton port) -->
-            <g id="anim-bus">
-              <text id="bus-emoji" font-size="14" text-anchor="middle" dominant-baseline="middle">🚌</text>
-              <animateMotion dur="4s" repeatCount="indefinite" begin="2s" rotate="auto">
-                <mpath href="#bus-path"/>
-              </animateMotion>
-            </g>
-
-            <!-- SHIP (Southampton → Norway ports → back) -->
-            <g id="anim-ship">
-              <text id="ship-emoji-map" font-size="18" text-anchor="middle" dominant-baseline="middle">🚢</text>
-              <animateMotion dur="20s" repeatCount="indefinite" begin="1s">
-                <mpath href="#ship-route"/>
-              </animateMotion>
-            </g>
-
-            <!-- COMPASS -->
-            <g transform="translate(462,30)">
-              <circle r="22" fill="rgba(255,255,255,0.85)" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <text font-size="8" fill="#333" font-family="-apple-system,sans-serif" text-anchor="middle" font-weight="600">
-                <tspan x="0" y="-10">N</tspan><tspan x="0" y="14">S</tspan>
-                <tspan x="-12" y="3">W</tspan><tspan x="12" y="3">E</tspan>
-              </text>
-              <line x1="0" y1="-16" x2="0" y2="16" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/>
-              <line x1="-16" y1="0" x2="16" y2="0" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/>
-              <polygon points="0,-13 2.5,0 0,4 -2.5,0" fill="#007AFF"/>
-              <polygon points="0,13 2.5,0 0,-4 -2.5,0" fill="rgba(0,0,0,0.2)"/>
-            </g>
-
-            <!-- MAP TOOLTIP -->
-            <g id="map-tip-g" opacity="0" style="pointer-events:none">
-              <rect id="tip-bg" x="0" y="0" width="160" height="44" rx="8" fill="rgba(30,30,30,0.88)"/>
-              <text id="tip-t1" x="10" y="17" font-size="11" fill="#fff" font-family="-apple-system,sans-serif" font-weight="600"/>
-              <text id="tip-t2" x="10" y="33" font-size="10" fill="rgba(255,255,255,0.7)" font-family="-apple-system,sans-serif"/>
-            </g>
-          </svg>
-        </div>
+    <!-- MAPA -->
+    <div id="sec-mapa" class="sec">
+      <div class="slabel">Ruta completa del viaje</div>
+      <div class="map-outer">
+        <div id="map"></div>
       </div>
-
-      <div class="ios-section" style="padding-top:0">
-        <div class="map-legend-ios ios-card" style="border-radius:12px">
-          <div class="map-legend-title">Escalas · toca para info</div>
-          <div class="map-legend-items">
-            <div class="map-leg" onclick="mapTip('Southampton','Puerto base · 16 y 23 mayo',138,460)"><div class="map-leg-dot" style="background:#007AFF"></div>Southampton</div>
-            <div class="map-leg" onclick="mapTip('S. Queensferry','18 Mayo · Edimburgo',136,308)"><div class="map-leg-dot" style="background:#34C759"></div>Edimburgo</div>
-            <div class="map-leg" onclick="mapTip('Stavanger','19 Mayo · Lysefijord',244,228)"><div class="map-leg-dot" style="background:#FF9500"></div>Stavanger</div>
-            <div class="map-leg" onclick="mapTip('Haugesund','20 Mayo · 07:00–18:00',262,192)"><div class="map-leg-dot" style="background:#FF9500"></div>Haugesund</div>
-            <div class="map-leg" onclick="mapTip('Kristiansand','21 Mayo · Zoo',286,248)"><div class="map-leg-dot" style="background:#34C759"></div>Kristiansand</div>
-          </div>
-        </div>
+      <div class="slabel">Leyenda</div>
+      <div class="card">
+        <div class="card-row"><div class="r-ico" style="background:rgba(59,130,246,.15);font-size:14px">✈️</div><div class="r-body"><div class="r-title">Madrid → Londres</div><div class="r-sub">Vuelo Iberia · 16 mayo 07:00</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(245,158,11,.15);font-size:14px">🚌</div><div class="r-body"><div class="r-title">Heathrow → Southampton</div><div class="r-sub">Bus National Express · 11:15–12:50</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(16,185,129,.15);font-size:14px">🚢</div><div class="r-body"><div class="r-title">Ruta crucero (azul)</div><div class="r-sub">Southampton → Fiordos → Southampton</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(239,68,68,.15);font-size:14px">🔴</div><div class="r-body"><div class="r-title">Puertos de escala</div><div class="r-sub">Toca cada marcador para más info</div></div></div>
       </div>
     </div>
 
-    <!-- ── RUTA ─────────────────────────────────────────────── -->
-    <div id="sec-ruta" class="section">
+    <!-- RUTA -->
+    <div id="sec-ruta" class="sec">
       <div style="height:16px"></div>
-      <div class="tl-container" id="tl-root"></div>
+      <div class="tl-outer" id="tl-root"></div>
     </div>
 
-    <!-- ── CABINA ───────────────────────────────────────────── -->
-    <div id="sec-cabina" class="section">
-      <div class="cabin-hero">
-        <div style="font-size:48px;margin-bottom:12px">🛳️</div>
-        <div class="cabin-num">8039</div>
-        <div class="cabin-type">Camarote con Balcón Deluxe</div>
-        <div class="cabin-deck">Cubierta 8 · 17 m²</div>
-      </div>
-
-      <div class="ios-section">
-        <div class="ios-section-label">Equipamiento</div>
-        <div class="ios-card">
-          <div class="ios-row"><div class="row-icon" style="background:rgba(0,122,255,0.12)">🌊</div><div class="row-body"><div class="row-title">Balcón privado</div></div><span class="chevron">›</span></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(52,199,89,0.12)">🛋️</div><div class="row-body"><div class="row-title">Área de estar con sofá</div></div><span class="chevron">›</span></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(90,200,250,0.15)">🚿</div><div class="row-body"><div class="row-title">Baño completo</div><div class="row-sub">Ducha · Secador · Tocador</div></div><span class="chevron">›</span></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(255,149,0,0.12)">🔒</div><div class="row-body"><div class="row-title">Caja fuerte</div></div><span class="chevron">›</span></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(88,86,214,0.12)">📺</div><div class="row-body"><div class="row-title">TV interactiva</div></div><span class="chevron">›</span></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(255,59,48,0.12)">🍹</div><div class="row-body"><div class="row-title">Minibar</div></div><span class="chevron">›</span></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(50,173,230,0.12)">❄️</div><div class="row-body"><div class="row-title">Aire acondicionado</div></div><span class="chevron">›</span></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(120,120,128,0.12)">📡</div><div class="row-body"><div class="row-title">WiFi</div><div class="row-sub">Cargo adicional a bordo</div></div><span class="chevron">›</span></div>
+    <!-- CABINA -->
+    <div id="sec-cabina" class="sec">
+      <div class="hero fu" style="background:linear-gradient(145deg,#1e3a5f,#0a1c30)">
+        <div class="hero-pre">Tu alojamiento</div>
+        <div class="hero-title">Camarote 8039 🛳️</div>
+        <div class="hero-sub">Cubierta 8 · Balcón Deluxe · 17 m²</div>
+        <div class="hero-pills">
+          <div class="h-pill blue">Cubierta 8</div>
+          <div class="h-pill green">Balcón</div>
+          <div class="h-pill orange">17 m²</div>
         </div>
       </div>
-
-      <div class="ios-section">
-        <div class="ios-section-label">Transportes</div>
-        <div class="ios-card">
-          <div class="ios-row"><div class="row-icon" style="background:rgba(0,122,255,0.12)">✈️</div><div class="row-body"><div class="row-title">Madrid → Londres</div><div class="row-sub">07:00 · 16 mayo · Iberia</div></div><div class="row-right">Nº pendiente</div></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(255,149,0,0.12)">🚌</div><div class="row-body"><div class="row-title">Heathrow → Southampton</div><div class="row-sub">11:15–12:50 · National Express</div></div></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(52,199,89,0.12)">🚢</div><div class="row-body"><div class="row-title">MSC Virtuosa · 16–23 mayo</div><div class="row-sub">4 adultos · 2 peques · Cab. 8039</div></div></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(255,149,0,0.12)">🚌</div><div class="row-body"><div class="row-title">Southampton → Heathrow</div><div class="row-sub">23 mayo · National Express</div></div></div>
-          <div class="ios-row"><div class="row-icon" style="background:rgba(0,122,255,0.12)">✈️</div><div class="row-body"><div class="row-title">Londres → Madrid</div><div class="row-sub">18:45 · 23 mayo · Iberia</div></div><div class="row-right">Nº pendiente</div></div>
-        </div>
+      <div class="slabel">Equipamiento camarote</div>
+      <div class="card fu fu2">
+        <div class="card-row"><div class="r-ico" style="background:rgba(59,130,246,.12)">🌊</div><div class="r-body"><div class="r-title">Balcón privado</div><div class="r-sub">Vistas al mar · Cubierta baja</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(16,185,129,.12)">🛋️</div><div class="r-body"><div class="r-title">Área de estar</div><div class="r-sub">Sofá convertible en cama extra</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(6,182,212,.15)">🚿</div><div class="r-body"><div class="r-title">Baño completo</div><div class="r-sub">Ducha · Secador · Amenities</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(245,158,11,.12)">🔒</div><div class="r-body"><div class="r-title">Caja fuerte</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(139,92,246,.12)">📺</div><div class="r-body"><div class="r-title">TV interactiva</div><div class="r-sub">Canales y servicios del barco</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(239,68,68,.12)">🍹</div><div class="r-body"><div class="r-title">Minibar</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(6,182,212,.12)">❄️</div><div class="r-body"><div class="r-title">Aire acondicionado</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(120,120,128,.15)">📡</div><div class="r-body"><div class="r-title">WiFi</div><div class="r-sub">Disponible con cargo adicional</div></div></div>
       </div>
-
-      <div class="note-ios">👶 <strong>Bebés:</strong> Solicita cuna de viaje al embarcar. El sofá puede convertirse en cama adicional. Supervisa siempre en el balcón.</div>
-      <div style="height:20px"></div>
+      <div class="slabel">Transportes</div>
+      <div class="card fu fu3">
+        <div class="card-row"><div class="r-ico" style="background:rgba(59,130,246,.12)">✈️</div><div class="r-body"><div class="r-title">Madrid (MAD) → Londres (LHR)</div><div class="r-sub">07:00 · 16 mayo · Iberia</div></div><div class="r-right" style="color:var(--orange)">Nº pdte.</div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(245,158,11,.12)">🚌</div><div class="r-body"><div class="r-title">Heathrow → Southampton</div><div class="r-sub">11:15–12:50 · National Express</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(16,185,129,.12)">🚢</div><div class="r-body"><div class="r-title">MSC Virtuosa · 16–23 mayo</div><div class="r-sub">Cabina 8039 · 4 adultos + 2 peques</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(245,158,11,.12)">🚌</div><div class="r-body"><div class="r-title">Southampton → Heathrow</div><div class="r-sub">23 mayo mañana · National Express</div></div></div>
+        <div class="card-row"><div class="r-ico" style="background:rgba(59,130,246,.12)">✈️</div><div class="r-body"><div class="r-title">Londres (LHR) → Madrid (MAD)</div><div class="r-sub">18:45 · 23 mayo · Iberia</div></div><div class="r-right" style="color:var(--orange)">Nº pdte.</div></div>
+      </div>
+      <div class="note">👶 <strong>Bebés a bordo:</strong> Solicita cuna de viaje al embarcar. El sofá del área de estar puede reconvertirse. En el balcón supervisa siempre a los peques — barandilla alta pero nunca dejarlos solos.</div>
     </div>
 
-    <!-- ── MALETA ─────────────────────────────────────────────── -->
-    <div id="sec-pack" class="section">
-      <div class="pack-progress-ios">
-        <div class="pack-progress-label"><span>Preparación maleta</span><span id="pack-pct">0%</span></div>
-        <div class="ios-progress"><div class="ios-progress-bar" id="pack-bar"></div></div>
+    <!-- MALETA -->
+    <div id="sec-pack" class="sec">
+      <div class="pack-hero fu">
+        <div class="pack-prog-row">
+          <div style="font-size:13px;font-weight:600">🧳 Maleta</div>
+          <div class="pack-prog-bar"><div class="pack-prog-fill" id="pack-fill"></div></div>
+          <div class="pack-pct" id="pack-pct">0%</div>
+        </div>
+        <div class="pack-motivation" id="pack-motive">Empieza a preparar el equipaje</div>
       </div>
       <div id="pack-root"></div>
-      <div style="height:20px"></div>
     </div>
 
-  </div><!-- /content -->
+  </div><!-- /scroll -->
 
-  <!-- ── TAB BAR ──────────────────────────────────────────── -->
-  <div class="tab-bar">
-    <div class="tab active" id="tab-hoy" onclick="goTab('hoy')"><div class="tab-icon">🧭</div><div class="tab-label">Hoy</div></div>
-    <div class="tab" id="tab-mapa" onclick="goTab('mapa')"><div class="tab-icon">🗺️</div><div class="tab-label">Mapa</div></div>
-    <div class="tab" id="tab-ruta" onclick="goTab('ruta')"><div class="tab-icon">📍</div><div class="tab-label">Ruta</div></div>
-    <div class="tab" id="tab-cabina" onclick="goTab('cabina')"><div class="tab-icon">🛏️</div><div class="tab-label">Cabina</div></div>
-    <div class="tab" id="tab-pack" onclick="goTab('pack')"><div class="tab-icon">🧳</div><div class="tab-label">Maleta</div></div>
+  <div class="tabs">
+    <div class="tab on" id="t-hoy" onclick="goTab('hoy')"><div class="tab-ico">🧭</div><div class="tab-lbl">Hoy</div></div>
+    <div class="tab" id="t-mapa" onclick="goTab('mapa')"><div class="tab-ico">🗺️</div><div class="tab-lbl">Mapa</div></div>
+    <div class="tab" id="t-ruta" onclick="goTab('ruta')"><div class="tab-ico">📍</div><div class="tab-lbl">Ruta</div></div>
+    <div class="tab" id="t-cabina" onclick="goTab('cabina')"><div class="tab-ico">🛏️</div><div class="tab-lbl">Cabina</div></div>
+    <div class="tab" id="t-pack" onclick="goTab('pack')"><div class="tab-ico">🧳</div><div class="tab-lbl">Maleta</div></div>
   </div>
+</div>
 
-</div><!-- /app -->
+<!-- ══════ PORT DETAIL PAGE ══════════════════════════════════ -->
+<div id="port-page">
+  <div id="port-content"></div>
+</div>
 
 <script>
-/* ════════════════════ LOCK ════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   LOCK
+══════════════════════════════════════════════════════════ */
 const HASH='22516ddccbf1af1d4ad8d9bd659b9d1f979b6b9a9ad2c37035ca024c6f9e5735';
-const SK='msc_auth_26';
+const SK='msc26_auth';
+const PSK='msc26_pack';
 
 // Stars
-(function(){
-  const c=document.getElementById('stars');
-  for(let i=0;i<60;i++){
-    const s=document.createElement('div');s.className='star';
-    const sz=Math.random()*2+1;
-    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation:twinkle ${2+Math.random()*3}s ${Math.random()*3}s ease-in-out infinite`;
-    c.appendChild(s);
-  }
-})();
+(()=>{const c=document.getElementById('stars');for(let i=0;i<70;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+.5;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation:twinkle ${1.5+Math.random()*3}s ${Math.random()*3}s ease-in-out infinite`;c.appendChild(s);}})();
 
-async function sha256(s){
-  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
-}
+async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
 
 async function doUnlock(){
-  const i=document.getElementById('pwd');
-  const err=document.getElementById('lock-err');
+  const i=document.getElementById('pwd'),err=document.getElementById('lerr');
   const v=i.value.trim();if(!v)return;
   const h=await sha256(v);
   if(h===HASH){
     sessionStorage.setItem(SK,'1');
     const l=document.getElementById('lock');
-    l.style.transition='opacity .5s';l.style.opacity='0';
+    l.style.transition='opacity .5s ease';l.style.opacity='0';
     setTimeout(()=>{l.style.display='none';launchApp();},500);
   } else {
-    i.classList.remove('shake');
-    void i.offsetWidth;
-    i.classList.add('shake');
-    err.textContent='Contraseña incorrecta';
-    i.value='';
+    i.classList.remove('shake');void i.offsetWidth;i.classList.add('shake');
+    err.textContent='Contraseña incorrecta';i.value='';
     setTimeout(()=>err.textContent='',2500);
   }
 }
+function toggleEye(){const i=document.getElementById('pwd');i.type=i.type==='password'?'text':'password';}
+document.getElementById('pwd').addEventListener('keydown',e=>{if(e.key==='Enter')doUnlock();});
 
-function toggleEye(){
-  const i=document.getElementById('pwd');
-  i.type=i.type==='password'?'text':'password';
-}
+if(sessionStorage.getItem(SK)==='1'){document.getElementById('lock').style.display='none';setTimeout(launchApp,0);}
 
-// Auto-unlock if session exists
-if(sessionStorage.getItem(SK)==='1'){
-  document.getElementById('lock').style.display='none';
-  document.getElementById('app').className='visible';
-  setTimeout(initApp,0);
-}
-
-function launchApp(){
-  document.getElementById('app').className='visible';
-  initApp();
-}
-
-/* ════════════════════ DATA ════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════════════ */
 const DAYS=[
-  {date:'2026-05-16',label:'Embarque',place:'Southampton',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',country:'Reino Unido',type:'travel',hours:['✈️ Vuelo 07:00 MAD→LHR','🚌 Bus 11:15 LHR→Southampton','🚢 Embarque hasta 19:00'],tip:'Con cuatro adultos y dos bebés, prepara los documentos y el portabebés a mano. El bus National Express desde Heathrow tarda ~1h30.'},
-  {date:'2026-05-17',label:'Día 1',place:'En Alta Mar',flag:'🌊',country:'Mar del Norte',type:'sea',hours:['🌊 Todo el día navegando'],tip:'Explora el barco con los peques. Localiza guardería, piscina cubierta y restaurantes. Día de descanso post-vuelo.'},
-  {date:'2026-05-18',label:'Día 2',place:'South Queensferry',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',country:'Escocia · Anclado',type:'port',hours:['⚓ 08:00 llegada','🚌 Bus lanzadera → Edimburgo','🚢 18:00 salida'],tip:'Bus lanzadera ~20 min al centro de Edimburgo. El castillo y el Royal Mile son impresionantes. El Puente Forth cerca del amarre.'},
-  {date:'2026-05-19',label:'Día 3',place:'Stavanger',flag:'🇳🇴',country:'Noruega · Lysefijord',type:'port',hours:['⚓ 14:00 llegada','🚢 22:00 salida'],tip:'Gamle Stavanger (casco antiguo de madera) perfecto con peques. Si alguien quiere Preikestolen (3h excursión), organizaros en parejas.'},
-  {date:'2026-05-20',label:'Día 4',place:'Haugesund',flag:'🇳🇴',country:'Noruega',type:'port',hours:['⚓ 07:00 llegada','🚢 18:00 salida'],tip:'Ciudad peatonal y tranquila, perfecta con carriola. Paseo por el fiordo y mercado local. Día relajado.'},
-  {date:'2026-05-21',label:'Día 5',place:'Kristiansand',flag:'🇳🇴',country:'Noruega',type:'port',hours:['⚓ 09:00 llegada','🚢 18:00 salida'],tip:'¡El Zoo de Kristiansand es uno de los mejores de Escandinavia! Los peques lo van a flipar. Reserva online antes de ir.'},
-  {date:'2026-05-22',label:'Día 6',place:'En Alta Mar',flag:'🌊',country:'Regreso · Mar del Norte',type:'sea',hours:['🌊 Todo el día navegando'],tip:'Último día a bordo. Aprovecha los restaurantes, shows y spa. Prepara el equipaje por la noche.'},
-  {date:'2026-05-23',label:'Desembarque',place:'Southampton',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',country:'Reino Unido',type:'travel',hours:['🚢 07:00 desembarque','🚌 Bus → Heathrow','✈️ 18:45 vuelo LHR→MAD'],tip:'Desembarque temprano. Tiempo holgado hasta el vuelo de tarde. Guarda libras para el bus de vuelta.'},
+  {id:'southampton-out',date:'2026-05-16',label:'Embarque',place:'Southampton',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',country:'Reino Unido',type:'travel',hours:['✈️ MAD→LHR 07:00–08:25','🚌 Bus LHR→Southampton 11:15','🚢 Embarque hasta 19:00'],tip:'Llega al aeropuerto con 2,5h de antelación. Con 4 adultos y 2 bebés conviene ir muy holgados. Portabebés en el avión, carrito en bodega.',port:null},
+  {id:'sea1',date:'2026-05-17',label:'Día 1',place:'En Alta Mar',flag:'🌊',country:'Mar del Norte',type:'sea',hours:['🌊 Todo el día navegando'],tip:'Día de adaptación. Explora el barco, localiza la guardería, piscinas y restaurantes. El MSC Virtuosa tiene más de 20 restaurantes a bordo.',port:null},
+  {id:'edinburgh',date:'2026-05-18',label:'Día 2',place:'South Queensferry',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',country:'Escocia · RU · Anclado',type:'port',hours:['⚓ 08:00 llegada','🚌 Lanzadera → Edimburgo (20 min)','🚢 18:00 salida'],tip:'Barco anclado → se va en lanzadera a tierra (puede haber cola). Organizaos en grupos para mayor agilidad con los carritos.',port:'edinburgh'},
+  {id:'stavanger',date:'2026-05-19',label:'Día 3',place:'Stavanger',flag:'🇳🇴',country:'Noruega',type:'port',hours:['⚓ 14:00 llegada','🚢 22:00 salida'],tip:'Solo 8h en puerto — aprovecha bien el tiempo. Gamle Stavanger (casco antiguo de madera) perfecto para niños pequeños.',port:'stavanger'},
+  {id:'haugesund',date:'2026-05-20',label:'Día 4',place:'Haugesund',flag:'🇳🇴',country:'Noruega',type:'port',hours:['⚓ 07:00 llegada','🚢 18:00 salida'],tip:'Ciudad tranquila, perfecta para pasear con carriola. Atraca directamente en el centro de la ciudad.',port:'haugesund'},
+  {id:'kristiansand',date:'2026-05-21',label:'Día 5',place:'Kristiansand',flag:'🇳🇴',country:'Noruega',type:'port',hours:['⚓ 09:00 llegada','🚢 18:00 salida'],tip:'El Zoo de Kristiansand es uno de los más famosos de Escandinavia — perfecto para los peques. Reserva online con antelación.',port:'kristiansand'},
+  {id:'sea2',date:'2026-05-22',label:'Día 6',place:'En Alta Mar',flag:'🌊',country:'Regreso · Mar del Norte',type:'sea',hours:['🌊 Todo el día navegando'],tip:'Último día a bordo. Prepara el equipaje por la noche para facilitar el desembarque. Disfruta los restaurantes y shows.',port:null},
+  {id:'southampton-in',date:'2026-05-23',label:'Desembarque',place:'Southampton',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',country:'Reino Unido',type:'travel',hours:['🚢 07:00 desembarque','🚌 Bus Southampton→LHR','✈️ 18:45 LHR→MAD'],tip:'Desembarque temprano. Guarda el equipaje en consigna si queréis explorar Southampton antes del vuelo. Tiempo holgado hasta las 18:45.',port:null},
 ];
 
-const PACK=[
-  {cat:'👶 Bebés',items:['Pañales (stock extra)','Toallitas húmedas','Crema de pañal','Leche / comida bebé','Portabebés x2','Chupetes repuesto','Juguetes favoritos','Medicación bebé','Cambiador portátil','Ropa abrigo peques x7','Pijamas peques']},
-  {cat:'🧳 Ropa adultos',items:['Ropa de abrigo (fiordos ~10°)','Impermeable / chubasquero x4','Calzado impermeable cómodo','Ropa elegante (cena a bordo)','Ropa interior x7','Pijamas x4']},
-  {cat:'📄 Documentos',items:['Pasaportes (6 personas)','Documentación MSC','Tarjetas embarque vuelo','Seguro de viaje','Nº vuelo Iberia (pendiente)','Reserva National Express']},
-  {cat:'💊 Salud',items:['Botiquín básico','Antimareo (meclizina)','Crema solar','Medicación habitual','Termómetro']},
-  {cat:'📱 Tecnología',items:['Cargadores x4','Adaptador UK tipo G x2','Power bank','Auriculares','Cámara / GoPro']},
+const PORT_DATA={
+  edinburgh:{
+    name:'South Queensferry / Edimburgo',
+    flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+    country:'Escocia, Reino Unido',
+    arrDep:'08:00–18:00 · 18 mayo · Barco ANCLADO',
+    img:'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=900&q=80&fit=crop',
+    gradient:'linear-gradient(145deg,#1a1a2e 0%,#2d1b4e 40%,#1a3a5c 100%)',
+    heroEmoji:'🏰',
+    heroLabel:'Edimburgo, Escocia',
+    dist:'~20 min en lanzadera + bus',
+    tip:'El barco ancla en South Queensferry, no atraca en muelle. Se va en lanzadera a tierra (gratuita, incluida). Pueden formarse colas — salid temprano.',
+    useful:[
+      {ico:'🌐',title:'National Express Bus',sub:'Reserva el bus National Express desde Edimburgo',url:'https://www.nationalexpress.com'},
+      {ico:'🏰',title:'Castillo de Edimburgo',sub:'Reserva entradas online (evita colas)',url:'https://www.edinburghcastle.scot'},
+      {ico:'🗺️',title:'VisitScotland',sub:'Guía oficial de turismo de Escocia',url:'https://www.visitscotland.com/destinations-maps/edinburgh'},
+    ],
+    attractions:[
+      {ico:'🏰',bg:'rgba(239,68,68,.2)',title:'Castillo de Edimburgo',desc:'Símbolo de Escocia. Vistas espectaculares de la ciudad. Lleva 1,5–2h. Con carritos hay ascensores en zonas principales.',tags:['must','paid'],dur:'2h'},
+      {ico:'👑',bg:'rgba(245,158,11,.2)',title:'Royal Mile',desc:'La calle más famosa de Escocia, llena de pubs, tiendas y artistas. Perfecta para pasear con los peques. Gratis.',tags:['free','baby','walk'],dur:'1–2h'},
+      {ico:'🏛️',bg:'rgba(139,92,246,.2)',title:'Palacio de Holyroodhouse',desc:'Residencia oficial de la Familia Real en Escocia. Al final del Royal Mile, con jardines perfectos para los niños.',tags:['paid','baby'],dur:'1,5h'},
+      {ico:'🌿',bg:'rgba(16,185,129,.2)',title:'Princes Street Gardens',desc:'Parque público precioso en el centro. Los niños pequeños lo van a disfrutar mucho. Vistas al castillo incluidas. Gratis.',tags:['free','baby'],dur:'1h'},
+      {ico:'🌉',bg:'rgba(6,182,212,.2)',title:'Forth Bridge',desc:'Puente victoriano declarado Patrimonio de la Humanidad. Lo veis desde el mismo barco en South Queensferry. Foto imprescindible.',tags:['free','must'],dur:'30min'},
+    ],
+    routes:[
+      {title:'Ruta express con bebés (5h)',desc:'Lanzadera → Royal Mile paseo → Castillo exterior (foto) → Princes Street Gardens picnic → Tiendas → Vuelta'},
+      {title:'Ruta completa (8h)',desc:'Lanzadera → Castillo de Edimburgo → Royal Mile almuerzo → Palacio Holyroodhouse → Arthur\'s Seat vista → Vuelta'},
+    ]
+  },
+  stavanger:{
+    name:'Stavanger',
+    flag:'🇳🇴',
+    country:'Noruega',
+    arrDep:'14:00–22:00 · 19 mayo · Muelle centro',
+    img:'https://images.unsplash.com/photo-1601439678777-b2b3c56fa627?w=900&q=80&fit=crop',
+    gradient:'linear-gradient(145deg,#0d2137 0%,#1a4a3a 40%,#0f3350 100%)',
+    heroEmoji:'🇳🇴',
+    heroLabel:'Stavanger, Noruega',
+    dist:'Atraca en el centro de la ciudad',
+    tip:'Solo 8 horas en puerto — prioriza lo que más os apetezca. El Preikestolen (3h en autobús + 4h senderismo) es incompatible con bebés de 1,5 años.',
+    useful:[
+      {ico:'🗺️',title:'Visit Stavanger',sub:'Guía oficial de turismo',url:'https://www.regionstavanger.com'},
+      {ico:'🏔️',title:'Preikestolen',sub:'Info excursión (para los que van sin bebés)',url:'https://www.preikestolen365.com'},
+    ],
+    attractions:[
+      {ico:'🏘️',bg:'rgba(245,158,11,.2)',title:'Gamle Stavanger',desc:'Barrio de casas blancas de madera del s.XVIII. El más bonito de Noruega. Peatonal, perfecto para carritos. Gratis.',tags:['free','baby','must'],dur:'1h'},
+      {ico:'🛢️',bg:'rgba(59,130,246,.2)',title:'Museo del Petróleo',desc:'El museo más visitado de Noruega. Con sección para niños interactiva. Buena opción si llueve.',tags:['paid','baby'],dur:'1,5h'},
+      {ico:'🌊',bg:'rgba(6,182,212,.2)',title:'Lysefjord (barco)',desc:'Crucero por el fiordo con vistas al Preikestolen desde abajo. 2h. Compatible con bebés en brazos/portabebés.',tags:['paid','baby'],dur:'2h'},
+      {ico:'🗼',bg:'rgba(139,92,246,.2)',title:'Valbergtårnet',desc:'Torre de vigilancia del s.XIX en la colina. Vistas panorámicas de la ciudad y el fiordo. Subida con escaleras.',tags:['free'],dur:'45min'},
+    ],
+    routes:[
+      {title:'Con bebés (recomendado, 7h)',desc:'Puerto → Gamle Stavanger paseo → Almuerzo en el puerto → Crucero Lysefjord 2h → Heladería → Vuelta'},
+      {title:'Para los aventureros (sin bebés)',desc:'Autobús a Tau → Ferry → Preikestolen (4h ida/vuelta) → Stavanger tarde'},
+    ]
+  },
+  haugesund:{
+    name:'Haugesund',
+    flag:'🇳🇴',
+    country:'Noruega',
+    arrDep:'07:00–18:00 · 20 mayo · Muelle centro',
+    img:'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=900&q=80&fit=crop',
+    gradient:'linear-gradient(145deg,#0a1f3d 0%,#0d3b2e 50%,#162a50 100%)',
+    heroEmoji:'🌊',
+    heroLabel:'Haugesund, Noruega',
+    dist:'Atraca en el centro',
+    tip:'Haugesund es una ciudad pequeña y muy tranquila. Perfecta para un día relajado con los peques después de los días de más actividad.',
+    useful:[
+      {ico:'🗺️',title:'Visit Haugesund',sub:'Guía oficial de turismo local',url:'https://www.visithaugesund.no'},
+    ],
+    attractions:[
+      {ico:'🚶',bg:'rgba(16,185,129,.2)',title:'Paseo marítimo Smedasundet',desc:'Paseo peatonal junto al fiordo en el centro de la ciudad. Muy tranquilo, cafeterías y restaurantes a pie de muelle. Perfecto con carritos.',tags:['free','baby','walk'],dur:'1–2h'},
+      {ico:'⚔️',bg:'rgba(239,68,68,.2)',title:'Haraldshaugen',desc:'Monumento vikingo al primer rey de Noruega, Harald I. A 10 min del muelle. Parque verde alrededor.',tags:['free','baby'],dur:'45min'},
+      {ico:'🎠',bg:'rgba(245,158,11,.2)',title:'Risøy y sus puentes',desc:'Pequeña isla conectada por puentes, perfecta para pasear en bici o a pie. Vistas del fiordo.',tags:['free','baby','walk'],dur:'1h'},
+      {ico:'🛍️',bg:'rgba(139,92,246,.2)',title:'Centro comercial Amfi Maritimt',desc:'Centro comercial moderno justo en el muelle. Buena opción si el tiempo acompaña poco. Hay área infantil.',tags:['free','baby'],dur:'1h'},
+    ],
+    routes:[
+      {title:'Día tranquilo (recomendado)',desc:'Paseo marítimo → Café desayuno → Haraldshaugen → Risøy → Almuerzo en el muelle → Vuelta relajada'},
+    ]
+  },
+  kristiansand:{
+    name:'Kristiansand',
+    flag:'🇳🇴',
+    country:'Noruega',
+    arrDep:'09:00–18:00 · 21 mayo · Muelle centro',
+    img:'https://images.unsplash.com/photo-1520769669658-f07657f5a307?w=900&q=80&fit=crop',
+    gradient:'linear-gradient(145deg,#1a0d2e 0%,#2d4a1a 45%,#0a2a3d 100%)',
+    heroEmoji:'🦁',
+    heroLabel:'Kristiansand, Noruega',
+    dist:'Atraca en el centro · Zoo a 10 min en taxi',
+    tip:'El Zoo (Dyreparken) es el plato fuerte del día. Reserva entradas online antes de salir de España — puede haber colas. Es el parque más visitado de Noruega.',
+    useful:[
+      {ico:'🦁',title:'Dyreparken (Zoo oficial)',sub:'Entradas online · Mejor precio',url:'https://www.dyreparken.no'},
+      {ico:'🗺️',title:'Visit Kristiansand',sub:'Guía turística oficial',url:'https://www.visitkristiansand.com'},
+    ],
+    attractions:[
+      {ico:'🦁',bg:'rgba(239,68,68,.2)',title:'Dyreparken — Zoo Kristiansand',desc:'El parque más visitado de Noruega. Zoo + parque de atracciones + Cardamom Town (de cuento). IMPRESCINDIBLE con niños. Reserva online.',tags:['must','baby','paid'],dur:'4–5h'},
+      {ico:'🏖️',bg:'rgba(6,182,212,.2)',title:'Playas de Otra',desc:'Kristiansand tiene las mejores playas de Noruega. Aunque en mayo no hace calor para bañarse, el paseo es precioso.',tags:['free','baby','walk'],dur:'1h'},
+      {ico:'🏰',bg:'rgba(245,158,11,.2)',title:'Fortaleza de Christiansholm',desc:'Fortaleza del s.XVII junto al puerto. Entrada gratuita, vistas al fiordo. Área de picnic.',tags:['free','baby'],dur:'30min'},
+      {ico:'🛒',bg:'rgba(16,185,129,.2)',title:'Posebyen',desc:'Barrio histórico con casas de madera blancas, similar a Gamle Stavanger. Tiendas y cafeterías.',tags:['free','walk'],dur:'1h'},
+    ],
+    routes:[
+      {title:'Con bebés (DÍA ESTELAR)',desc:'Puerto → Taxi/Uber al Zoo (10 min) → Dyreparken 4h → Almuerzo en el Zoo → Vuelta al barco con tiempo'},
+      {title:'Sin zoo',desc:'Fortaleza Christiansholm → Posebyen paseo → Playa Otra → Almuerzo en el puerto'},
+    ]
+  }
+};
+
+const PACK_CATS=[
+  {id:'bebe',ico:'👶',title:'Bebés',items:[
+    {name:'Pañales (stock x2 semanas)',pri:'high'},
+    {name:'Toallitas húmedas x5 packs',pri:'high'},
+    {name:'Crema de pañal',pri:'high'},
+    {name:'Leche de fórmula / comida',pri:'high'},
+    {name:'Portabebés x2',pri:'high'},
+    {name:'Chupetes repuesto x4',pri:'med'},
+    {name:'Juguetes y entretenimiento',pri:'med'},
+    {name:'Medicación bebé (pediatra)',pri:'high'},
+    {name:'Cambiador portátil',pri:'med'},
+    {name:'Ropa abrigo peques (x8 días)',pri:'high'},
+    {name:'Pijamas peques x4',pri:'med'},
+    {name:'Baberos y recambios',pri:'med'},
+  ]},
+  {id:'docs',ico:'📄',title:'Documentos',items:[
+    {name:'Pasaportes — 6 personas',pri:'high'},
+    {name:'ETA Reino Unido — 6 personas',pri:'high'},
+    {name:'Documentación MSC (todos)',pri:'high'},
+    {name:'Tarjetas de embarque vuelo',pri:'high'},
+    {name:'Seguro de viaje',pri:'high'},
+    {name:'Números vuelo Iberia (pendiente)',pri:'med'},
+    {name:'Reserva National Express',pri:'med'},
+    {name:'Reserva Zoo Kristiansand',pri:'med'},
+  ]},
+  {id:'ropa',ico:'🧳',title:'Ropa adultos',items:[
+    {name:'Ropa de abrigo (capas, ~10°)',pri:'high'},
+    {name:'Impermeable / chubasquero x4',pri:'high'},
+    {name:'Calzado impermeable cómodo',pri:'high'},
+    {name:'Ropa elegante (cena barco) x4',pri:'med'},
+    {name:'Ropa interior x8 días cada uno',pri:'high'},
+    {name:'Pijamas x4',pri:'med'},
+    {name:'Bañador (piscina del barco)',pri:'med'},
+  ]},
+  {id:'salud',ico:'💊',title:'Salud y farmacia',items:[
+    {name:'Botiquín básico',pri:'high'},
+    {name:'Antimareo (meclizina/Biodramina)',pri:'high'},
+    {name:'Crema solar SPF50+',pri:'med'},
+    {name:'Medicación habitual',pri:'high'},
+    {name:'Termómetro',pri:'med'},
+    {name:'Repelente mosquitos',pri:'med'},
+  ]},
+  {id:'tech',ico:'📱',title:'Tecnología',items:[
+    {name:'Cargadores x4 (USB-C y Lightning)',pri:'high'},
+    {name:'Adaptador UK tipo G x2',pri:'high'},
+    {name:'Power bank',pri:'med'},
+    {name:'Auriculares (avión + bebés)',pri:'med'},
+    {name:'Cámara / GoPro',pri:'med'},
+    {name:'Tarjetas SIM o eSIM Europa',pri:'med'},
+  ]},
 ];
 
-let packState={};
-
-/* ════════════════════ INIT ════════════════════════════════ */
-function initApp(){
-  buildToday();
-  buildTimeline();
-  buildPacking();
-  startCountdown();
+/* ══════════════════════════════════════════════════════════
+   LAUNCH
+══════════════════════════════════════════════════════════ */
+let mapInit=false;
+function launchApp(){
+  document.getElementById('app').className='on';
+  buildToday();buildTimeline();buildPacking();startCountdown();
 }
 
-/* ════════════════════ TODAY ═══════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════════════ */
+const TABIDS=['hoy','mapa','ruta','cabina','pack'];
+function goTab(id){
+  TABIDS.forEach(t=>{
+    document.getElementById('sec-'+t).classList.toggle('on',t===id);
+    document.getElementById('t-'+t).classList.toggle('on',t===id);
+  });
+  document.getElementById('scroll-area').scrollTo(0,0);
+  if(id==='mapa'&&!mapInit){initMap();mapInit=true;}
+  if(id==='ruta'){animTL();}
+}
+
+/* ══════════════════════════════════════════════════════════
+   MAP — Real Leaflet
+══════════════════════════════════════════════════════════ */
+function initMap(){
+  const map=L.map('map',{zoomControl:true,attributionControl:false,scrollWheelZoom:false}).setView([54,4],4);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:18}).addTo(map);
+
+  // Custom icon factory
+  function icon(emoji,size=32){
+    return L.divIcon({html:`<div style="font-size:${size}px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))">${emoji}</div>`,className:'',iconAnchor:[size/2,size/2]});
+  }
+  function portIcon(color){
+    return L.divIcon({html:`<div style="width:16px;height:16px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 0 0 2px ${color},0 2px 8px rgba(0,0,0,.5)"></div>`,className:'',iconAnchor:[8,8]});
+  }
+
+  // Port coords
+  const ports={
+    madrid:[40.4168,-3.7038],
+    london_heathrow:[51.4700,-0.4543],
+    southampton:[50.9097,-1.4044],
+    edinburgh:[55.9533,-3.1883],
+    stavanger:[58.9700,5.7331],
+    haugesund:[59.4138,5.2680],
+    kristiansand:[58.1467,7.9956],
+  };
+
+  // Routes
+  const planeCoords=[ports.madrid,ports.london_heathrow];
+  const busCoords=[ports.london_heathrow,[51.18,-1.35],ports.southampton];
+  const shipCoords=[ports.southampton,[53.5,-1.5],ports.edinburgh,[57,-1],[58.2,3],[58.5,5],ports.stavanger,ports.haugesund,[59,6.5],[58.5,7.5],ports.kristiansand,[57,5],[55,4],[53,3],[51.5,1.5],ports.southampton];
+
+  // Draw route lines
+  L.polyline(planeCoords,{color:'#3B82F6',weight:2,dashArray:'8,5',opacity:.8}).addTo(map);
+  L.polyline(busCoords,{color:'#F59E0B',weight:2,dashArray:'6,4',opacity:.8}).addTo(map);
+  L.polyline(shipCoords,{color:'#10B981',weight:3,opacity:.7}).addTo(map);
+
+  // Port markers with popups
+  const portInfo={
+    southampton:{name:'Southampton 🏴󠁧󠁢󠁥󠁮󠁧󠁿',info:'Puerto base · Embarque 16/05 07:00 · Desembarque 23/05',color:'#3B82F6'},
+    edinburgh:{name:'South Queensferry 🏴󠁧󠁢󠁳󠁣󠁴󠁿',info:'18 Mayo · 08:00–18:00 · Anclado · Puerta de Edimburgo',color:'#10B981'},
+    stavanger:{name:'Stavanger 🇳🇴',info:'19 Mayo · 14:00–22:00 · Lysefijord',color:'#F59E0B'},
+    haugesund:{name:'Haugesund 🇳🇴',info:'20 Mayo · 07:00–18:00',color:'#F59E0B'},
+    kristiansand:{name:'Kristiansand 🇳🇴',info:'21 Mayo · 09:00–18:00 · Zoo Kristiansand 🦁',color:'#10B981'},
+    madrid:{name:'Madrid ✈️',info:'Salida 16/05 · Vuelo Iberia 07:00',color:'#EF4444'},
+  };
+
+  Object.entries(portInfo).forEach(([k,p])=>{
+    const m=L.marker(ports[k],{icon:portIcon(p.color)}).addTo(map);
+    m.bindPopup(`<div class="pop-title">${p.name}</div><div class="pop-info">${p.info}</div>`,{className:'lf-popup',maxWidth:200});
+  });
+
+  // Animated vehicles
+  let planeIdx=0,busIdx=0,shipIdx=0;
+  let planePt=null,busPt=null,shipPt=null;
+
+  planePt=L.marker(ports.madrid,{icon:icon('✈️',26),zIndexOffset:100}).addTo(map);
+  busPt=L.marker(ports.london_heathrow,{icon:icon('🚌',22),zIndexOffset:100}).addTo(map);
+  shipPt=L.marker(ports.southampton,{icon:icon('🚢',28),zIndexOffset:100}).addTo(map);
+
+  // Animate along path
+  function lerp(a,b,t){return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];}
+  function animVehicle(pts,markerRef,speed,offset){
+    let t=offset||0;
+    const tot=pts.length-1;
+    function step(){
+      t=(t+speed)%(tot);
+      const i=Math.floor(t);
+      const frac=t-i;
+      const pos=lerp(pts[i],pts[Math.min(i+1,tot)],frac);
+      markerRef.setLatLng(pos);
+      requestAnimationFrame(step);
+    }
+    step();
+  }
+
+  // Plane: Madrid→London→Southampton cycle
+  const planeRoute=[ports.madrid,ports.london_heathrow,ports.southampton];
+  animVehicle(planeRoute,planePt,0.004,0);
+  // Bus: Heathrow→Southampton cycle
+  animVehicle(busCoords,busPt,0.006,0);
+  // Ship: full route
+  animVehicle(shipCoords,shipPt,0.003,0);
+}
+
+/* ══════════════════════════════════════════════════════════
+   TODAY + COUNTDOWN
+══════════════════════════════════════════════════════════ */
 function buildToday(){
   const today=new Date();today.setHours(0,0,0,0);
   const start=new Date('2026-05-16');start.setHours(0,0,0,0);
-  const curr=DAYS.find(d=>{const dt=new Date(d.date);dt.setHours(0,0,0,0);return dt.getTime()===today.getTime()});
-  const title=document.getElementById('hero-title');
-  const sub=document.getElementById('hero-sub');
-  const pills=document.getElementById('hero-pills');
+  const curr=DAYS.find(d=>{const dt=new Date(d.date);dt.setHours(0,0,0,0);return dt.getTime()===today.getTime();});
+  const title=document.getElementById('h-title'),sub=document.getElementById('h-sub'),pills=document.getElementById('h-pills');
   if(curr){
     title.textContent=curr.flag+' '+curr.place;
     sub.textContent=curr.country;
-    pills.innerHTML=curr.hours.map(h=>`<div class="hero-pill">${h}</div>`).join('');
+    pills.innerHTML=curr.hours.map(h=>`<div class="h-pill blue">${h}</div>`).join('');
   } else if(today<start){
     const diff=Math.round((start-today)/86400000);
     title.textContent=diff===1?'¡Mañana partís! 🎉':`Faltan ${diff} días`;
-    sub.textContent='El MSC Virtuosa sale el 16 de mayo';
-    pills.innerHTML='<div class="hero-pill blue">Southampton</div><div class="hero-pill green">Noruega</div>';
+    sub.textContent='MSC Virtuosa · 16 de mayo · Southampton';
+    pills.innerHTML='<div class="h-pill blue">✈️ Madrid→Londres</div><div class="h-pill green">🚢 Southampton</div>';
   } else {
     title.textContent='Viaje completado 🏠';
-    sub.textContent='Esperamos que fuera increíble';
+    sub.textContent='Esperamos que fuera una experiencia increíble';
     pills.innerHTML='';
   }
 }
 
-/* ════════════════════ COUNTDOWN ═══════════════════════════ */
 function startCountdown(){
+  const target=new Date('2026-05-16T07:00:00+02:00');
   function tick(){
-    const start=new Date('2026-05-16T07:00:00');
-    const now=new Date();
-    const diff=start-now;
+    const now=new Date(),diff=target-now;
     const dEl=document.getElementById('cd-d'),hEl=document.getElementById('cd-h'),mEl=document.getElementById('cd-m'),sEl=document.getElementById('cd-s');
     if(!dEl)return;
-    if(diff<=0){document.getElementById('countdown-row').innerHTML='<div style="font-size:15px;color:var(--blue);padding:8px">🚢 ¡Estáis de viaje!</div>';return;}
-    const d=Math.floor(diff/86400000);
-    const h=Math.floor((diff%86400000)/3600000);
-    const m=Math.floor((diff%3600000)/60000);
-    const s=Math.floor((diff%60000)/1000);
-    dEl.textContent=d;hEl.textContent=String(h).padStart(2,'0');mEl.textContent=String(m).padStart(2,'0');sEl.textContent=String(s).padStart(2,'0');
+    if(diff<=0){document.getElementById('cd-wrap').innerHTML='<div style="font-size:15px;color:var(--blue2);padding:10px;text-align:center">🚢 ¡Estáis de viaje!</div>';return;}
+    dEl.textContent=Math.floor(diff/86400000);
+    hEl.textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+    mEl.textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+    sEl.textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');
   }
   tick();setInterval(tick,1000);
 }
 
-/* ════════════════════ TIMELINE ════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   TIMELINE
+══════════════════════════════════════════════════════════ */
 function buildTimeline(){
   const root=document.getElementById('tl-root');
   const today=new Date();today.setHours(0,0,0,0);
   DAYS.forEach((d,i)=>{
     const dt=new Date(d.date);dt.setHours(0,0,0,0);
     const isToday=dt.getTime()===today.getTime(),isPast=dt<today;
-    const dotClass=isToday?'today':isPast?'past':'';
-    const badge=d.type==='sea'?'sea':d.type==='port'?'port':'travel';
-    const badgeLabel=d.type==='sea'?'Alta mar':d.type==='port'?'Puerto':'Viaje';
+    const dotCls=isToday?'today':isPast?'past':'';
+    const bdg=d.type==='sea'?'sea':d.type==='port'?'port':'travel';
+    const bdgTxt=d.type==='sea'?'Alta mar':d.type==='port'?'Puerto':'Viaje';
+    const hasPort=!!d.port;
     const item=document.createElement('div');item.className='tl-item';
     item.innerHTML=`
       <div class="tl-left">
-        <div class="tl-line-seg ${i===0?'':'colored'} top"></div>
-        <div class="tl-dot-wrap"><div class="tl-dot ${dotClass}"></div></div>
-        <div class="tl-line-seg colored bottom"></div>
+        <div class="tl-top-line" style="background:${i===0?'transparent':'var(--blue)'}"></div>
+        <div class="tl-dot-wrap"><div class="tl-dot ${dotCls}"></div></div>
+        <div class="tl-bot-line" style="background:${i===DAYS.length-1?'transparent':'var(--blue)'}"></div>
       </div>
       <div class="tl-right">
-        <div class="tl-card-ios ${isToday?'today':''}">
-          <div class="tl-card-header">
-            <div class="tl-card-meta">
-              <span>${d.label} · ${new Date(d.date).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})}</span>
-              <span style="display:flex;gap:4px">
-                <span class="tl-badge-ios ${badge}">${badgeLabel}</span>
-                ${isToday?'<span class="tl-badge-ios today">Hoy</span>':''}
-              </span>
+        <div class="tl-card ${isToday?'today':''}" onclick="${hasPort?`openPort('${d.port}')`:''}" style="${isPast?'opacity:.6':''}">
+          <div class="tl-card-h">
+            <div class="tl-meta">
+              <span class="tl-date-lbl">${d.label} · ${new Date(d.date).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})}</span>
+              <div class="tl-badges"><span class="badge ${bdg}">${bdgTxt}</span>${isToday?'<span class="badge today">Hoy</span>':''}</div>
             </div>
-            <div class="tl-place-name">${d.flag} ${d.place}</div>
+            <div class="tl-place">${d.flag} ${d.place}</div>
           </div>
-          <div class="tl-card-body">
-            <div class="tl-hours">${d.hours.map(h=>`<span class="tl-hour-chip">${h}</span>`).join('')}</div>
-            ${d.tip?`<div class="tl-tip-ios">💡 ${d.tip}</div>`:''}
+          <div class="tl-card-b">
+            <div class="tl-chips">${d.hours.map(h=>`<span class="chip">${h}</span>`).join('')}</div>
+            <div class="tl-tip">${d.tip}</div>
+            ${hasPort?`<div class="tl-more">Ver qué hacer · actividades · rutas <span>›</span></div>`:''}
           </div>
         </div>
       </div>`;
     root.appendChild(item);
-    setTimeout(()=>item.style.opacity='1',i*60);
   });
 }
 
-/* ════════════════════ PACKING ═════════════════════════════ */
+function animTL(){
+  document.querySelectorAll('.tl-item').forEach((el,i)=>{
+    setTimeout(()=>el.classList.add('vis'),i*70);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   PORT DETAIL PAGE
+══════════════════════════════════════════════════════════ */
+function openPort(id){
+  const p=PORT_DATA[id];if(!p)return;
+  const content=document.getElementById('port-content');
+  content.innerHTML=`
+    <div class="port-hero">
+      <div style="position:absolute;inset:0;background:${p.gradient}"></div>
+      ${p.img ? `<img src="${p.img}" alt="${p.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s" onload="this.style.opacity=1" onerror="this.remove()">` : ''}
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.72) 100%)"></div>
+      <div style="position:absolute;bottom:70px;right:20px;font-size:72px;opacity:0.15;line-height:1;pointer-events:none">${p.heroEmoji}</div>
+      <button class="port-back" onclick="closePort()">‹ Volver</button>
+      <div class="port-hero-content">
+        <div class="port-country-badge">${p.flag} ${p.country}</div>
+        <div class="port-hero-title">${p.name}</div>
+        <div class="port-hero-sub">⏰ ${p.arrDep}</div>
+      </div>
+    </div>
+    <div class="port-body">
+
+      <div class="tip-box">🚢 ${p.tip}</div>
+      <div style="font-size:13px;color:var(--label3);margin-bottom:4px">📍 Desde el barco: ${p.dist}</div>
+
+      ${p.useful&&p.useful.length?`
+        <div class="port-section-title">🔗 Links útiles</div>
+        ${p.useful.map(l=>`
+          <a class="link-btn" href="${l.url}" target="_blank">
+            <div class="link-btn-left">
+              <div class="link-btn-ico" style="background:var(--card2)">${l.ico}</div>
+              <div><div class="link-btn-title">${l.title}</div><div class="link-btn-sub">${l.sub}</div></div>
+            </div>
+            <span style="color:var(--label3)">›</span>
+          </a>`).join('')}
+      `:''}
+
+      <div class="port-section-title">⭐ Qué ver y hacer</div>
+      ${p.attractions.map(a=>`
+        <div class="port-attraction">
+          <div class="pa-ico" style="background:${a.bg}">${a.ico}</div>
+          <div class="pa-body">
+            <div class="pa-title">${a.title}</div>
+            <div class="pa-sub">${a.desc}</div>
+            <div class="pa-tags">
+              ${a.tags.map(t=>{const labels={must:'⭐ Imprescindible',baby:'👶 Apto bebés',free:'Gratis',paid:'De pago',walk:'🚶 A pie'};return`<span class="pa-tag ${t}">${labels[t]||t}</span>`}).join('')}
+              ${a.dur?`<span class="pa-tag" style="background:rgba(120,120,128,.15);color:var(--label3);border:1px solid rgba(120,120,128,.2)">⏱ ${a.dur}</span>`:''}
+            </div>
+          </div>
+        </div>`).join('')}
+
+      <div class="port-section-title">🗺️ Rutas sugeridas</div>
+      ${p.routes.map(r=>`
+        <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:8px">
+          <div style="font-size:14px;font-weight:600;margin-bottom:6px;color:var(--blue2)">📌 ${r.title}</div>
+          <div style="font-size:13px;color:var(--label2);line-height:1.6">${r.desc}</div>
+        </div>`).join('')}
+
+    </div>`;
+  document.getElementById('port-page').classList.add('open');
+  document.getElementById('port-page').scrollTo(0,0);
+}
+
+function closePort(){
+  document.getElementById('port-page').classList.remove('open');
+}
+
+/* ══════════════════════════════════════════════════════════
+   PACKING — persistent via localStorage
+══════════════════════════════════════════════════════════ */
+let packState={};
+function loadPackState(){
+  try{const s=localStorage.getItem(PSK);if(s)packState=JSON.parse(s);}catch(e){}
+}
+function savePackState(){
+  try{localStorage.setItem(PSK,JSON.stringify(packState));}catch(e){}
+}
+
 function buildPacking(){
+  loadPackState();
   const root=document.getElementById('pack-root');
-  PACK.forEach(cat=>{
-    const wrap=document.createElement('div');wrap.className='ios-section';
-    wrap.innerHTML=`<div class="ios-section-label">${cat.cat}</div>`;
-    const card=document.createElement('div');card.className='ios-card';
+  PACK_CATS.forEach(cat=>{
+    const wrap=document.createElement('div');
+    wrap.className='card';wrap.style.margin='0 16px 10px';
+    // Header (toggle)
+    const hdr=document.createElement('div');hdr.className='pack-cat-toggle';
+    const doneCount=cat.items.filter(it=>packState[cat.id+'_'+it.name]).length;
+    hdr.innerHTML=`
+      <div class="pack-cat-left">
+        <div class="pack-cat-ico">${cat.ico}</div>
+        <div>
+          <div class="pack-cat-title">${cat.title}</div>
+          <div class="pack-cat-count">${doneCount}/${cat.items.length} preparados</div>
+        </div>
+      </div>
+      <div class="pack-cat-arrow" id="arr-${cat.id}">›</div>`;
+    // Items list
+    const list=document.createElement('div');list.className='pack-items-list';list.style.maxHeight='0';list.id='plist-'+cat.id;
     cat.items.forEach(item=>{
-      const id=btoa(encodeURIComponent(cat.cat+item));
-      packState[id]=false;
-      const row=document.createElement('div');row.className='pack-item-ios';
-      row.innerHTML=`<div class="pack-check-ios"></div><div class="pack-name-ios">${item}</div>`;
+      const key=cat.id+'_'+item.name;
+      const row=document.createElement('div');
+      row.className='pack-item'+(packState[key]?' done':'');
+      row.id='prow-'+key.replace(/[^a-z0-9]/gi,'_');
+      row.innerHTML=`<div class="pack-check">${packState[key]?'✓':''}</div><div class="pack-name">${item.name}</div><span class="pack-priority ${item.pri}">${item.pri==='high'?'Esencial':'Opcional'}</span>`;
       row.onclick=()=>{
-        packState[id]=!packState[id];
-        row.classList.toggle('checked',packState[id]);
-        row.querySelector('.pack-check-ios').textContent=packState[id]?'✓':'';
-        updatePack();
+        packState[key]=!packState[key];
+        row.classList.toggle('done',packState[key]);
+        row.querySelector('.pack-check').textContent=packState[key]?'✓':'';
+        // update count
+        const newDone=cat.items.filter(it=>packState[cat.id+'_'+it.name]).length;
+        hdr.querySelector('.pack-cat-count').textContent=`${newDone}/${cat.items.length} preparados`;
+        savePackState();updatePackProgress();
       };
-      card.appendChild(row);
+      list.appendChild(row);
     });
-    wrap.appendChild(card);root.appendChild(wrap);
+    hdr.onclick=()=>{
+      const open=list.style.maxHeight!=='0px'&&list.style.maxHeight!=='0';
+      list.style.maxHeight=open?'0':list.scrollHeight+'px';
+      document.getElementById('arr-'+cat.id).classList.toggle('open',!open);
+    };
+    wrap.appendChild(hdr);wrap.appendChild(list);root.appendChild(wrap);
   });
-  updatePack();
+  updatePackProgress();
 }
 
-function updatePack(){
-  const all=Object.keys(packState).length,done=Object.values(packState).filter(Boolean).length;
+function updatePackProgress(){
+  const all=PACK_CATS.reduce((s,c)=>s+c.items.length,0);
+  const done=Object.values(packState).filter(Boolean).length;
   const pct=all?Math.round(done/all*100):0;
-  document.getElementById('pack-bar').style.width=pct+'%';
+  document.getElementById('pack-fill').style.width=pct+'%';
   document.getElementById('pack-pct').textContent=pct+'%';
-}
-
-/* ════════════════════ MAP TOOLTIP ═════════════════════════ */
-function mapTip(title,info,px,py){
-  const g=document.getElementById('map-tip-g');
-  const bg=document.getElementById('tip-bg');
-  const t1=document.getElementById('tip-t1');
-  const t2=document.getElementById('tip-t2');
-  const svg=document.getElementById('the-map');
-  const vw=svg.viewBox.baseVal.width;
-  const tw=Math.max(title.length,info.length)*6.2+20;
-  const x=Math.min(px+8,vw-tw-10);
-  const y=Math.max(py-54,8);
-  bg.setAttribute('x',x);bg.setAttribute('y',y);bg.setAttribute('width',tw);
-  t1.setAttribute('x',x+10);t1.setAttribute('y',y+17);t1.textContent=title;
-  t2.setAttribute('x',x+10);t2.setAttribute('y',y+33);t2.textContent=info;
-  bg.setAttribute('width',tw);
-  g.setAttribute('opacity','1');
-  clearTimeout(g._t);g._t=setTimeout(()=>g.setAttribute('opacity','0'),3000);
-}
-
-/* ════════════════════ TABS ════════════════════════════════ */
-const TABS=['hoy','mapa','ruta','cabina','pack'];
-function goTab(id){
-  TABS.forEach(t=>{
-    document.getElementById('sec-'+t).classList.toggle('active',t===id);
-    document.getElementById('tab-'+t).classList.toggle('active',t===id);
-  });
-  document.querySelector('.content').scrollTo(0,0);
+  const motives=['Empieza a preparar el equipaje 👇','¡Buen comienzo! Sigue así','Ya vas por la mitad 🎉','¡Casi lista! Solo unos pocos','¡Maleta 100% preparada! 🧳✈️'];
+  const idx=pct===100?4:pct>75?3:pct>50?2:pct>15?1:0;
+  document.getElementById('pack-motive').textContent=motives[idx];
 }
 </script>
 </body>
